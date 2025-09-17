@@ -28,7 +28,7 @@ export const config = {
         password: { type: 'password' },
       },
       async authorize(credentials) {
-        console.log(credentials);
+
         if (credentials === null) return null;
 
         // Find user in database
@@ -66,8 +66,8 @@ export const config = {
     async session({ session, user, trigger, token }) {
       // Set the user ID from the token
       session.user.id = token.sub;
-      // session.user.role = token.role;
-      // session.user.name = token.name;
+      session.user.role = token.role;
+      session.user.name = token.name;
 
       // If there is an update, set the user name
       if (trigger === 'update') {
