@@ -1,11 +1,11 @@
 'use server';
 
 import {
-    //   shippingAddressSchema,
-    signInFormSchema,
-    //   signUpFormSchema,
-    //   paymentMethodSchema,
-    //   updateUserSchema,
+  //   shippingAddressSchema,
+  signInFormSchema,
+  //   signUpFormSchema,
+  //   paymentMethodSchema,
+  //   updateUserSchema,
 } from '../validators';
 import { auth, signIn, signOut } from '@/auth';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
@@ -43,13 +43,13 @@ export async function signInWithCredentials(
 
 // Sign user out
 export async function signOutUser() {
-    // get current users cart and delete it so it does not persist to next user
-    //   const currentCart = await getMyCart();
-
-    //   if (currentCart?.id) {
-    //     await prisma.cart.delete({ where: { id: currentCart.id } });
-    //   } else {
-    //     console.warn('No cart found for deletion.');
-    //   }
     await signOut();
+  // get current users cart and delete it so it does not persist to next user
+  //   const currentCart = await getMyCart();
+
+  //   if (currentCart?.id) {
+  //     await prisma.cart.delete({ where: { id: currentCart.id } });
+  //   } else {
+  //     console.warn('No cart found for deletion.');
+  //   }
 }
