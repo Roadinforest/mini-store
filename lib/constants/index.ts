@@ -21,13 +21,22 @@ export const signUpDefaultValues = {
     confirmPassword: "",
 };
 
+
 export const shippingAddressDefaultValues = {
-    fullName: "老李",
-    streetAddress: "徐汇区",
-    city: "上海市",
-    postalCode: "12345",
-    country: "China",
+    fullName: "",
+    streetAddress: "",
+    city: "",
+    postalCode: "",
+    country: "",
 };
+
+// export const shippingAddressDefaultValues = {
+//     fullName: "Alex Johnson",
+//     streetAddress: "77 Massachusetts Ave, Building 32",
+//     city: "Cambridge",
+//     postalCode: "02139",
+//     country: "USA",
+// };
 
 export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
     ? process.env.PAYMENT_METHODS.split(", ")

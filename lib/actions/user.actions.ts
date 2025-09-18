@@ -1,9 +1,10 @@
 'use server';
 
 import {
+  shippingAddressSchema,
   //   shippingAddressSchema,
   signInFormSchema,
-    signUpFormSchema,
+  signUpFormSchema,
   //   paymentMethodSchema,
   //   updateUserSchema,
 } from '../validators';
@@ -13,6 +14,7 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error';
 // import { hash } from '../encrypt';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
+import { ShippingAddress } from '@/types';
 // import { formatError } from '../utils';
 // import { ShippingAddress } from '@/types';
 // import { z } from 'zod';
@@ -45,7 +47,7 @@ export async function signInWithCredentials(
 
 // Sign user out
 export async function signOutUser() {
-    await signOut();
+  await signOut();
   // get current users cart and delete it so it does not persist to next user
   //   const currentCart = await getMyCart();
 
@@ -89,6 +91,42 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     if (isRedirectError(error)) {
       throw error;
     }
-    return { success: false, message: formatError(error)};
+    return { success: false, message: formatError(error) };
+  }
+}
+
+// Get user by the ID
+export async function getUserById(userId: string) {
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+  });
+  if (!user) throw new Error('User not found');
+  return user;
+}
+
+// Update the user's address
+export async function updateUserAddress(data: ShippingAddress) {
+  try {
+    const session = await auth();
+
+    const currentUser = await prisma.user.findFirst({
+      where: { id: session?.user?.id },
+    });
+
+    if (!currentUser) throw new Error('User not found');
+
+    const address = shippingAddressSchema.parse(data);
+
+    await prisma.user.update({
+      where: { id: currentUser.id },
+      data: { address: address },
+    });
+
+    return {
+      success: true,
+      message: 'User updated successfully',
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
   }
 }
