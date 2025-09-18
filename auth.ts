@@ -5,6 +5,10 @@ import { prisma } from '@/db/prisma';
 import { cookies } from 'next/headers';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compareSync } from 'bcrypt-ts-edge';
+import { NextResponse } from 'next/server';
+
+// Document
+// https://authjs.dev/getting-started/installation
 
 export const config = {
   // Specify URLs to be used if you want to create custom sign in, sign out and error pages.
@@ -27,7 +31,7 @@ export const config = {
         email: { type: 'email' },
         password: { type: 'password' },
       },
-      async authorize(credentials) {
+      authorize: async (credentials) => {
 
         if (credentials === null) return null;
 
@@ -76,6 +80,7 @@ export const config = {
 
       return session;
     },
+
     //This callback is called whenever a JSON Web Token is created (i.e. at sign in) or updated (i.e whenever a session is accessed in the client). The returned value will be encrypted, and it is stored in a cookie.
     async jwt({ token, user, trigger, session }) {
       // Assign user fields to token
@@ -126,8 +131,35 @@ export const config = {
 
       return token;
     },
-  },
 
+    // Middleware function provided by NextAuth
+    // Doc:https://authjs.dev/reference/nextjs#authorized
+    authorized({ request, auth }: any) {
+      //Check for session cart cookie
+      if (!request.cookies.get('sessionCartId')) {
+        // Generate new session cart id cookie
+        const sessionCartId = crypto.randomUUID();
+        // Clone the req headers
+        const newRequestHeaders = new Headers(request.headers)
+
+        // Create new response and add the new headers
+        const response = NextResponse.next({
+          request: {
+            headers: newRequestHeaders
+          }
+        });
+
+        // Set newly generated sessionCartId in the response cookies
+        response.cookies.set('sessionCartId', sessionCartId);
+
+        return response;
+      }
+      else {
+        return true;
+      }
+    }
+
+  },
 } satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config) 
