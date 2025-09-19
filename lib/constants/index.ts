@@ -38,13 +38,6 @@ export const shippingAddressDefaultValues = {
 //     country: "USA",
 // };
 
-export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
-    ? process.env.PAYMENT_METHODS.split(", ")
-    : ["PayPal", "Stripe", "CashOnDelivery"];
-
-export const DEFAULT_PAYMENT_METHOD =
-    process.env.DEFAULT_PAYMENT_METHOD || "PayPal";
-
 export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 2;
 
 export const productDefaultValues = {
@@ -79,3 +72,11 @@ export const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev";
 export const TAX_RATE = 0.15;
 export const SHIPPING_PRICE = 10;
 export const FREE_SHIPPING_BAR = 100;
+
+//  Payment
+export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
+    ? process.env.PAYMENT_METHODS.split(",")
+    : ["PayPal", "Stripe", "CashOnDelivery"];
+
+export const DEFAULT_PAYMENT_METHOD =
+    process.env.DEFAULT_PAYMENT_METHOD || "PayPal";

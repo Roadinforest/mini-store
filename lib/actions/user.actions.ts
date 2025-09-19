@@ -1,6 +1,7 @@
 'use server';
 
 import {
+  paymentMethodSchema,
   shippingAddressSchema,
   //   shippingAddressSchema,
   signInFormSchema,
@@ -15,6 +16,7 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
 import { ShippingAddress } from '@/types';
+import z from 'zod';
 // import { formatError } from '../utils';
 // import { ShippingAddress } from '@/types';
 // import { z } from 'zod';
@@ -120,6 +122,35 @@ export async function updateUserAddress(data: ShippingAddress) {
     await prisma.user.update({
       where: { id: currentUser.id },
       data: { address: address },
+    });
+
+    return {
+      success: true,
+      message: 'User updated successfully',
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+
+// Update user's payment method
+export async function updateUserPaymentMethod(
+  data: z.infer<typeof paymentMethodSchema>
+) {
+  try {
+    const session = await auth();
+    const currentUser = await prisma.user.findFirst({
+      where: { id: session?.user?.id },
+    });
+
+    if (!currentUser) throw new Error('User not found');
+
+    console.log("Payment schema belike",data);
+    const paymentMethod = paymentMethodSchema.parse(data);
+
+    await prisma.user.update({
+      where: { id: currentUser.id },
+      data: { paymentMethod: paymentMethod.type },
     });
 
     return {
