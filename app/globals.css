@@ -1,6 +1,10 @@
 /* @import "tw-animate-css"; */
 @import "tailwindcss";
 
+/* Come from https://docs.uploadthing.com/getting-started/appdir#setting-up-your-environment */
+@import "uploadthing/tw/v4";
+@source "../node_modules/@uploadthing/react/dist"; 
+
 @custom-variant dark (&:is(.dark *));
 
 @layer utilities {

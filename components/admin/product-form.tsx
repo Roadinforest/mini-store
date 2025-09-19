@@ -25,6 +25,7 @@ import { Card, CardContent } from "../ui/card";
 import Image from "next/image";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
+import { UploadButton } from "@/lib/uploadthing";
 
 const ProductForm = ({
   type,
@@ -269,7 +270,7 @@ const ProductForm = ({
                         />
                       ))}
                       <FormControl>
-                        {/* <UploadButton
+                        <UploadButton
                           endpoint='imageUploader'
                           onClientUploadComplete={(res: { url: string }[]) => {
                             form.setValue('images', [...images, res[0].url]);
@@ -280,7 +281,7 @@ const ProductForm = ({
                               description: `ERROR! ${error.message}`,
                             });
                           }}
-                        /> */}
+                        />
                       </FormControl>
                     </div>
                   </CardContent>
@@ -323,19 +324,18 @@ const ProductForm = ({
               )}
 
               {isFeatured && !banner && (
-                <p>Upload Button</p>
-                // <UploadButton
-                //   endpoint='imageUploader'
-                //   onClientUploadComplete={(res: { url: string }[]) => {
-                //     form.setValue('banner', res[0].url);
-                //   }}
-                //   onUploadError={(error: Error) => {
-                //     toast({
-                //       variant: 'destructive',
-                //       description: `ERROR! ${error.message}`,
-                //     });
-                //   }}
-                // />
+                <UploadButton
+                  endpoint='imageUploader'
+                  onClientUploadComplete={(res: { url: string }[]) => {
+                    form.setValue('banner', res[0].url);
+                  }}
+                  onUploadError={(error: Error) => {
+                    toast({
+                      variant: 'destructive',
+                      description: `ERROR! ${error.message}`,
+                    });
+                  }}
+                />
               )}
             </CardContent>
           </Card>
