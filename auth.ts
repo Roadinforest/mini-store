@@ -7,6 +7,9 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { NextResponse } from 'next/server';
 import { compare } from './lib/encrypt';
 
+
+export const runtime = "nodejs"; // Force Node.js Runtime
+
 // Document
 // https://authjs.dev/getting-started/installation
 
