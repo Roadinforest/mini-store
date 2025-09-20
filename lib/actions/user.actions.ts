@@ -11,9 +11,8 @@ import {
   //   updateUserSchema,
 } from '../validators';
 import { auth, signIn, signOut } from '@/auth';
-import { hashSync } from 'bcrypt-ts-edge';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
-// import { hash } from '../encrypt';
+import { hash } from '../encrypt';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
 import { ShippingAddress } from '@/types';
@@ -76,7 +75,7 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
 
     const plainPassword = user.password;
 
-    user.password = await hashSync(user.password);
+    user.password = await hash(user.password);
 
     await prisma.user.create({
       data: {
@@ -211,11 +210,11 @@ export async function getAllUsers({
   const queryFilter: Prisma.UserWhereInput =
     query && query !== 'all'
       ? {
-          name: {
-            contains: query,
-            mode: 'insensitive',
-          } as Prisma.StringFilter,
-        }
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        } as Prisma.StringFilter,
+      }
       : {};
 
   const data = await prisma.user.findMany({
