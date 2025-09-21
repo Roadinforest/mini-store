@@ -25,7 +25,6 @@ export const config = {
     strategy: 'jwt' as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  // You would like to persist user / account data,
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -69,6 +68,8 @@ export const config = {
   ],
   callbacks: {
     ...authConfig.callbacks,
+    // https://authjs.dev/reference/nextjs#callbacks
+
     // The session callback is called whenever a session is checked. By default, only a subset of the token is returned for increased security
     async session({ session, user, trigger, token }) {
       // Set the user ID from the token

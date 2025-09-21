@@ -10,8 +10,8 @@ export const LATEST_PRODUCTS_LIMIT =
     Number(process.env.NEXT_PUBLIC_LATEST_PRODUCTS_LIMIT) || 4;
 
 export const signInDefaultValues = {
-    email: "admin@example.com",
-    password: "123456",
+    email: "user@example.com",
+    password: "87654321",
 };
 
 export const signUpDefaultValues = {

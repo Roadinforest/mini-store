@@ -3,12 +3,9 @@
 import {
   paymentMethodSchema,
   shippingAddressSchema,
-  //   shippingAddressSchema,
   signInFormSchema,
   signUpFormSchema,
   updateUserSchema,
-  //   paymentMethodSchema,
-  //   updateUserSchema,
 } from '../validators';
 import { auth, signIn, signOut } from '@/auth';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
@@ -20,13 +17,7 @@ import z from 'zod';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@prisma/client';
 import { PAGE_SIZE } from '../constants';
-// import { formatError } from '../utils';
-// import { ShippingAddress } from '@/types';
-// import { z } from 'zod';
-// import { PAGE_SIZE } from '../constants';
-// import { revalidatePath } from 'next/cache';
-// import { Prisma } from '@prisma/client';
-// import { getMyCart } from './cart.actions';
+import { getMyCart } from './cart.actions';
 
 // Sign in the user with credentials
 export async function signInWithCredentials(
@@ -52,15 +43,14 @@ export async function signInWithCredentials(
 
 // Sign user out
 export async function signOutUser() {
-  await signOut();
   // get current users cart and delete it so it does not persist to next user
-  //   const currentCart = await getMyCart();
+  const currentCart = await getMyCart();
 
-  //   if (currentCart?.id) {
-  //     await prisma.cart.delete({ where: { id: currentCart.id } });
-  //   } else {
-  //     console.warn('No cart found for deletion.');
-  //   }
+  if (currentCart?.id) {
+    await prisma.cart.delete({ where: { id: currentCart.id } });
+  } else {
+    console.warn('No cart found for deletion.');
+  }
 }
 
 // Sign up user
