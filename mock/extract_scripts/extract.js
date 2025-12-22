@@ -2,6 +2,7 @@
 
 // How to use:
 //  node extract.js <path/to/input.jsonl> <limit> [outputDir]
+//  Example:  node pipeline.js Software 50 10
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');

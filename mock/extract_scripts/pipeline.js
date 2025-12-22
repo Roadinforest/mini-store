@@ -4,7 +4,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 // How to use:
-//  node pipeline.js <name> <product_count> <each_comment_count>
+//  node pipeline.js <name> <product_count> <each_comment_count> [insert_enable]
 
 function usage() {
   console.error('Usage: node pipeline.js <name> <product_count> <each_comment_count>');
@@ -25,7 +25,7 @@ function runNode(scriptPath, args) {
 }
 
 async function main() {
-  const [name, productCountArg, perCommentArg] = process.argv.slice(2);
+  const [name, productCountArg, perCommentArg, insertFlag] = process.argv.slice(2);
   if (!name || !productCountArg || !perCommentArg) {
     usage();
     process.exit(1);
@@ -46,11 +46,16 @@ async function main() {
   const reviewsSource = path.join(originDir, `${name}.jsonl`);
   const extractScript = path.join(__dirname, 'extract.js');
   const findScript = path.join(__dirname, 'find_comments.js');
+  const insertScript = path.join(__dirname, 'insert_products.js');
 
   ensureFileExists(extractScript, 'extract.js');
   ensureFileExists(findScript, 'find_comments.js');
   ensureFileExists(metaSource, 'Meta source');
   ensureFileExists(reviewsSource, 'Reviews source');
+  const shouldInsert = typeof insertFlag === 'string' && ['1', 'true', 'yes', 'y'].includes(insertFlag.toLowerCase());
+  if (shouldInsert) {
+    ensureFileExists(insertScript, 'insert_products.js');
+  }
 
   fs.mkdirSync(outputsDir, { recursive: true });
 
@@ -63,9 +68,16 @@ async function main() {
   const commentsOutput = path.join(outputsDir, `comments_${name}-${productCount}-${perComment}.json`);
   runNode(findScript, [metaOutput, reviewsSource, commentsOutput, String(perComment)]);
 
+  if (shouldInsert) {
+    runNode(insertScript, [metaOutput]);
+  }
+
   console.log('Done.');
   console.log(`Meta output: ${metaOutput}`);
   console.log(`Comments output: ${commentsOutput}`);
+  if (shouldInsert) {
+    console.log('Products inserted into database.');
+  }
 }
 
 main().catch(err => {
