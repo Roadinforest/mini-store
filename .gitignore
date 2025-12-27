@@ -43,7 +43,6 @@ next-env.d.ts
 /lib/generated/prisma
 
 
-# mock data
-/mock/**
-!/mock/extract_scripts/
-!/mock/extract_scripts/**
+# rag data
+lib/rag/outputs/**
+lib/rag/data/**
