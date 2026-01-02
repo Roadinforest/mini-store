@@ -46,3 +46,4 @@ next-env.d.ts
 # rag data
 lib/rag/outputs/**
 lib/rag/data/**
+test*/**
