@@ -79,7 +79,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
 
       const assistantMessage: Message = {
         role: 'assistant',
-        content: data.message.content,
+        content: data.content,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
