@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { toolsDefinition, toolsMap } from "./registry";
+import { toolsDefinition, toolsMap } from "./tools";
 
 const client = new OpenAI({
   apiKey: process.env.QWEN_API_KEY,
@@ -30,6 +30,8 @@ export async function runAgent(messages: any[]) {
 
     const responseMessage = response.choices[0].message;
     console.log("🤖 Agent Response:", responseMessage);
+    // console.log("🤖 Agent Response:");
+    // console.dir(response, { depth: null, colors: true });
 
     // B. 把模型的回复（可能包含 tool_calls）加入历史
     currentMessages.push(responseMessage);
