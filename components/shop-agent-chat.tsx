@@ -4,12 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import { X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { trpcClient } from '@/lib/trpc/client';
+import type { ChatMessage } from '@/lib/trpc/schemas';
 import { cn } from '@/lib/utils';
 
-interface Message {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
+type Message = ChatMessage;
 
 interface ShopAgentChatProps {
   isOpen: boolean;
@@ -55,27 +54,11 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
     setIsLoading(true);
 
     try {
-      // 准备发送给API的消息历史（不包括刚添加的用户消息，因为我们要手动添加）
-      const apiMessages = [...messages, userMessage].map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+      const apiMessages: Message[] = [...messages, userMessage];
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: apiMessages,
-        }),
+      const data : Message = await trpcClient.chat.mutate({
+        messages: apiMessages,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response');
-      }
-
-      const data = await response.json();
 
       const assistantMessage: Message = {
         role: 'assistant',

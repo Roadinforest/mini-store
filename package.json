@@ -25,6 +25,8 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-toast": "^1.2.15",
+    "@trpc/client": "^11.8.1",
+    "@trpc/server": "^11.8.1",
     "@uploadthing/react": "^7.1.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
