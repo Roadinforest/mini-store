@@ -19,7 +19,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: '你好！我是店铺智能助手，有什么可以帮助你的吗？',
+      content: '你好！我是Mini-Store智能购物助手，有什么可以帮助你的吗？',
     },
   ]);
   const [input, setInput] = useState('');
