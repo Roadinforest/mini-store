@@ -33,6 +33,16 @@ export async function getProductById(productId: string) {
   return convertToPlainObject(data);
 }
 
+// Get product slug by it's ID
+export async function getSlugById(productId: string) {
+  const data = await prisma.product.findFirst({
+    where: { id: productId },
+    select: { slug: true },
+  });
+
+  return data?.slug || null;
+}
+
 // Get all products
 export async function getAllProducts({
   query,
@@ -139,7 +149,7 @@ export async function deleteProduct(id: string) {
 export async function createProduct(data: z.infer<typeof insertProductSchema>) {
   try {
     const product = insertProductSchema.parse(data);
-    await prisma.product.create({ data: product });
+    await prisma.product.create({ data: { ...product, id: crypto.randomUUID() } });
 
     revalidatePath('/admin/products');
 

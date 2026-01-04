@@ -13,7 +13,17 @@ const config = {
     MAX_TURNS: 5,
 };
 
-export async function runAgent(messages: any[]) {
+// 定义返回类型
+interface AgentResponse {
+  type?: 'navigation' | 'text';
+  action?: string;
+  url?: string;
+  message?: string;
+  content?: string;
+  shouldExecuteNavigation?: boolean;
+}
+
+export async function runAgent(messages: any[]): Promise<string | AgentResponse> {
   let currentMessages = [...messages];
   let turnCount = 0;
 
@@ -54,6 +64,21 @@ export async function runAgent(messages: any[]) {
             toolOutput = await toolFunction(args);
         } catch (e: any) {
             toolOutput = { error: e.message };
+        }
+
+        console.log(`🛠️ Tool ${functionName} output:`, toolOutput);
+
+        // 特殊处理：检测跳转功能
+        if (functionName === "jump_product_page" || (toolOutput && toolOutput.type === "navigation")) {
+          console.log("🔄 Navigation detected, executing redirect...");
+          // 如果是跳转工具，直接返回跳转指令，不继续对话循环
+          return {
+            type: "navigation",
+            action: "redirect",
+            url: toolOutput.url || (typeof toolOutput === 'string' ? toolOutput : toolOutput.message),
+            message: toolOutput.message || `正在跳转到产品页面...`,
+            shouldExecuteNavigation: true
+          } as AgentResponse;
         }
 
         // F. 将工具执行结果作为 Tool Message 塞回历史

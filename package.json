@@ -67,6 +67,7 @@
     "@types/react-dom": "^19",
     "@types/ws": "^8.18.1",
     "autoprefixer": "^10.4.21",
+    "baseline-browser-mapping": "^2.9.11",
     "bufferutil": "^4.0.9",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",

@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import { trpcClient } from '@/lib/trpc/client';
 import type { ChatMessage } from '@/lib/trpc/schemas';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 type Message = ChatMessage;
 
@@ -27,6 +28,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -65,6 +67,13 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
         role: 'assistant',
         content: data.content,
       };
+
+      console.log("Received assistant message:", data);
+
+      if(data.url) {
+        console.log("Navigating to:", data.url);
+        router.push(data.url);
+      }
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
