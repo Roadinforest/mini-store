@@ -67,9 +67,19 @@ export async function runAgent(messages: any[]) {
       // 循环继续，带着工具结果再次请求 LLM
     } else {
       // G. 如果没有 tool_calls，说明模型已经生成了最终回复，直接返回
-      return responseMessage.content;
+      return normalizeText(responseMessage.content || "");
     }
   }
 
   return "Agent 思考步数过多，请重试。";
+}
+
+// 辅助函数：规范化文本格式
+function normalizeText(text: string): string {
+  if (!text) return "";
+  
+  return text
+    .replace(/(-\s[^\n]+)\n+(-\s)/g, '$1\n$2') // 列表项之间只保留一个换行符
+    .replace(/\n+$/, '') // 去掉结尾的多余换行符
+    .replace(/^\n+/, ''); // 去掉开头的多余换行符
 }

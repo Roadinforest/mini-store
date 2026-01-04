@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import ReactMarkdown from 'react-markdown';
 import { trpcClient } from '@/lib/trpc/client';
 import type { ChatMessage } from '@/lib/trpc/schemas';
 import { cn } from '@/lib/utils';
@@ -125,9 +126,47 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100'
               )}
             >
-              <p className="whitespace-pre-wrap break-words">
-                {message.content}
-              </p>
+              {message.role === 'assistant' ? (
+                <div className="whitespace-pre-wrap break-words">
+                  <ReactMarkdown
+                    components={{
+                      // 自定义 Markdown 组件样式
+                      p: ({ children }) => <p className="mb-0">{children}</p>,
+                      ul: ({ children }) => <ul className="list-disc list-inside mb-0 space-y-0">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal list-inside mb-0 space-y-0">{children}</ol>,
+                      li: ({ children }) => <li className="mb-0 leading-tight">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                      pre: ({ children }) => (
+                        <pre className="bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-x-auto text-xs font-mono mb-2 last:mb-0">
+                          {children}
+                        </pre>
+                      ),
+                      blockquote: ({ children }) => (
+                        <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-3 italic mb-2 last:mb-0">
+                          {children}
+                        </blockquote>
+                      ),
+                      a: ({ children, href }) => (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+                        >
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className="whitespace-pre-wrap break-words">
+                  {message.content}
+                </p>
+              )}
             </div>
           </div>
         ))}
