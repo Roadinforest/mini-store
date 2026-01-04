@@ -1,6 +1,5 @@
 import { getSlugById } from "@/lib/actions/product.actions";
-import z from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from "zod";
 
 const jumpProductPageSchema = z.object({
   productId: z.string().describe("要跳转到的产品页面的产品ID"),
@@ -36,7 +35,7 @@ export const jump_product_page_function_definition = {
     name: "jump_product_page",
     description:
       "跳转到指定产品页面的工具。输入产品ID后会直接跳转到对应的产品详情页面。",
-    parameters: zodToJsonSchema(jumpProductPageSchema),
+    parameters: jumpProductPageSchema.toJSONSchema(),
   },
 };
 

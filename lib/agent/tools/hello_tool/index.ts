@@ -1,5 +1,4 @@
-import z from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
 
 const helloToolSchema = z.object({
   query: z.string().describe('输入的query,用于生成问候语'),
@@ -16,7 +15,7 @@ export const hello_tool_function_definition = {
   function: {
     name: "hello_tool",
     description: "生成问候语的工具",
-    parameters: zodToJsonSchema(helloToolSchema),
+    parameters: helloToolSchema.toJSONSchema(),
   },
 }
 

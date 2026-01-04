@@ -1,5 +1,4 @@
-import z from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
 import { getAllProducts } from '@/lib/actions/product.actions';
 
 const searchProductsByNameSchema = z.object({
@@ -45,7 +44,7 @@ export const search_products_by_name_function_definition = {
   function: {
     name: "search_products_by_name",
     description: "根据产品名称搜索相关产品",
-    parameters: zodToJsonSchema(searchProductsByNameSchema),
+    parameters: searchProductsByNameSchema.toJSONSchema(),
   },
 }
 

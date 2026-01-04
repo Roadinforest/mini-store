@@ -1,5 +1,5 @@
-import z from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
+
 import { getProductById } from '@/lib/actions/product.actions';
 
 const getProductDetailsSchema = z.object({
@@ -38,7 +38,7 @@ export const get_product_details_function_definition = {
   function: {
     name: "get_product_details",
     description: "根据产品ID获取详细的产品信息",
-    parameters: zodToJsonSchema(getProductDetailsSchema),
+    parameters: getProductDetailsSchema.toJSONSchema(),
   },
 }
 

@@ -1,5 +1,4 @@
-import z from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
 import { getReviews } from '@/lib/actions/review.actions';
 
 const getProductReviewsSchema = z.object({
@@ -37,7 +36,7 @@ export const get_product_reviews_function_definition = {
   function: {
     name: "get_product_reviews",
     description: "根据产品ID获取该产品的所有用户评论",
-    parameters: zodToJsonSchema(getProductReviewsSchema),
+    parameters: getProductReviewsSchema.toJSONSchema(),
   },
 }
 
