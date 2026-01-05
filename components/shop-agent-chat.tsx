@@ -5,8 +5,8 @@ import { X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ReactMarkdown from 'react-markdown';
-import { trpcClient } from '@/lib/trpc/client';
-import type { ChatMessage } from '@/lib/trpc/schemas';
+import type { ChatMessage, StreamChunk } from '@/lib/trpc/schemas';
+import { parseStreamChunk } from '@/lib/streaming-utils';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
@@ -56,35 +56,146 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
     setInput('');
     setIsLoading(true);
 
+    // 添加一个占位符消息用于显示流式内容
+    let assistantMessageIndex: number;
+    setMessages((prev) => {
+      assistantMessageIndex = prev.length;
+      return [...prev, { role: 'assistant', content: '' }];
+    });
+
     try {
       const apiMessages: Message[] = [...messages, userMessage];
 
-      const data : Message = await trpcClient.chat.mutate({
-        messages: apiMessages,
+      const response = await fetch('/api/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: apiMessages }),
       });
 
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.content,
-      };
-
-      console.log("Received assistant message:", data);
-
-      if(data.url) {
-        console.log("Navigating to:", data.url);
-        router.push(data.url);
+      if (!response.body) {
+        throw new Error('No response body');
       }
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') {
+              continue;
+            }
+
+            try {
+              const chunk = parseStreamChunk(data);
+              if (!chunk) continue;
+              
+              if (chunk.type === 'partial' && chunk.content) {
+                // 更新助手消息内容
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  if (newMessages[assistantMessageIndex]) {
+                    newMessages[assistantMessageIndex] = {
+                      ...newMessages[assistantMessageIndex],
+                      content: chunk.content!,
+                    };
+                  }
+                  return newMessages;
+                });
+              } else if (chunk.type === 'complete' && chunk.content) {
+                // 最终内容
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  if (newMessages[assistantMessageIndex]) {
+                    newMessages[assistantMessageIndex] = {
+                      ...newMessages[assistantMessageIndex],
+                      content: chunk.content!,
+                    };
+                  }
+                  return newMessages;
+                });
+              } else if (chunk.type === 'navigation' && chunk.url) {
+                // 处理导航
+                console.log('Navigating to:', chunk.url);
+                router.push(chunk.url);
+                
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  if (newMessages[assistantMessageIndex]) {
+                    newMessages[assistantMessageIndex] = {
+                      ...newMessages[assistantMessageIndex],
+                      content: chunk.message || '正在跳转...',
+                      url: chunk.url,
+                    };
+                  }
+                  return newMessages;
+                });
+              } else if (chunk.type === 'tool_call') {
+                // 显示工具调用状态
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  if (newMessages[assistantMessageIndex]) {
+                    newMessages[assistantMessageIndex] = {
+                      ...newMessages[assistantMessageIndex],
+                      content: chunk.content || `正在使用工具: ${chunk.toolName}`,
+                    };
+                  }
+                  return newMessages;
+                });
+              } else if (chunk.type === 'thinking') {
+                // 显示思考状态
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  if (newMessages[assistantMessageIndex]) {
+                    newMessages[assistantMessageIndex] = {
+                      ...newMessages[assistantMessageIndex],
+                      content: chunk.content || '正在思考...',
+                    };
+                  }
+                  return newMessages;
+                });
+              } else if (chunk.type === 'error') {
+                // 错误处理
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  if (newMessages[assistantMessageIndex]) {
+                    newMessages[assistantMessageIndex] = {
+                      ...newMessages[assistantMessageIndex],
+                      content: chunk.content || '抱歉，我遇到了一些问题。请稍后再试。',
+                    };
+                  }
+                  return newMessages;
+                });
+              }
+            } catch (parseError) {
+              console.error('Error parsing streaming data:', parseError);
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: '抱歉，我遇到了一些问题。请稍后再试。',
-        },
-      ]);
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        if (newMessages[assistantMessageIndex]) {
+          newMessages[assistantMessageIndex] = {
+            ...newMessages[assistantMessageIndex],
+            content: '抱歉，我遇到了一些问题。请稍后再试。',
+          };
+        }
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
     }
