@@ -31,11 +31,12 @@ export async function runAgent(messages: any[]): Promise<string | AgentResponse>
     role: 'system',
     content: shopAgentPrompts,
   };
-  console.log('🤖 Initializing with system prompt.', systemPromptMessage);
 
   if(currentMessages[0]?.role !== 'system'){
     currentMessages.unshift(systemPromptMessage);
+    console.log('🤖 Initializing with system prompt.', systemPromptMessage);
   }
+  console.log('🤖 Messages Length:', currentMessages.length);
 
   let turnCount = 0;
 

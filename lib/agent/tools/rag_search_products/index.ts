@@ -3,7 +3,7 @@ import { PineconeQuery,generateEmbedding } from '@/lib/rag/pinecone';
 
 
 const ragSearchProductsSchema = z.object({
-  query: z.string().describe('产品搜索查询文本，例如"手机"、"蓝牙耳机"、"智能手表"等'),
+  query: z.string().describe('产品搜索查询文本(需要翻译为英文)'),
   topK: z.number().optional().default(5).describe('返回结果数量，默认为5'),
 });
 
