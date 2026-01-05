@@ -1,15 +1,26 @@
-import { pineconeClient, CONFIG } from './client.js';
+import { pineconeClient, CONFIG } from './client';
+
+export interface VectorData {
+  id: string;
+  values: number[];
+  metadata: Record<string, any>;
+}
+
+export interface UploadResult {
+  success: number;
+  failed: number;
+}
 
 /**
  * Pinecone 向量上传器
  */
-class PineconeUploader {
+export class PineconeUploader {
   /**
    * 带重试的上传向量
-   * @param {Object} vector - 向量数据
+   * @param {VectorData} vector - 向量数据
    * @param {number} maxRetries - 最大重试次数
    */
-  static async uploadWithRetry(vector, maxRetries = CONFIG.MAX_RETRIES) {
+  static async uploadWithRetry(vector: VectorData, maxRetries: number = CONFIG.MAX_RETRIES): Promise<void> {
     const index = pineconeClient.getIndex();
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -18,9 +29,9 @@ class PineconeUploader {
         return;
       } catch (error) {
         if (attempt === maxRetries) {
-          throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
+          throw new Error(`Failed after ${maxRetries} attempts: ${(error as Error).message}`);
         }
-        console.warn(`⚠️ Upload attempt ${attempt} failed, retrying... (${error.message})`);
+        console.warn(`⚠️ Upload attempt ${attempt} failed, retrying... (${(error as Error).message})`);
         await new Promise(resolve => setTimeout(resolve, attempt * 1000));
       }
     }
@@ -32,15 +43,21 @@ class PineconeUploader {
    * @param {string} title - 产品标题
    * @param {string} content - 产品内容
    * @param {number[]} embedding - embedding向量
-   * @param {Object} metadata - 额外的元数据
+   * @param {Record<string, any>} metadata - 额外的元数据
    */
-  static async uploadProduct(productId, title, content, embedding, metadata = {}) {
+  static async uploadProduct(
+    productId: string, 
+    title: string, 
+    content: string, 
+    embedding: number[], 
+    metadata: Record<string, any> = {}
+  ): Promise<void> {
     if (!productId || !embedding || !Array.isArray(embedding)) {
       throw new Error('Invalid product data: missing required fields');
     }
     
     try {
-      const vector = {
+      const vector: VectorData = {
         id: productId,
         values: embedding,
         metadata: {
@@ -56,7 +73,7 @@ class PineconeUploader {
       await this.uploadWithRetry(vector);
       console.log(`✅ Uploaded product ${productId}: ${title.substring(0, 50)}${title.length > 50 ? '...' : ''}`);
     } catch (error) {
-      console.error(`❌ Error uploading product ${productId}:`, error.message);
+      console.error(`❌ Error uploading product ${productId}:`, (error as Error).message);
       throw error;
     }
   }
@@ -67,9 +84,15 @@ class PineconeUploader {
    * @param {string} batch - 批次信息
    * @param {string} content - 评论内容
    * @param {number[]} embedding - embedding向量
-   * @param {Object} metadata - 额外的元数据
+   * @param {Record<string, any>} metadata - 额外的元数据
    */
-  static async uploadComments(parentAsin, batch, content, embedding, metadata = {}) {
+  static async uploadComments(
+    parentAsin: string, 
+    batch: string, 
+    content: string, 
+    embedding: number[], 
+    metadata: Record<string, any> = {}
+  ): Promise<void> {
     if (!parentAsin || !embedding || !Array.isArray(embedding)) {
       throw new Error('Invalid comments data: missing required fields');
     }
@@ -77,7 +100,7 @@ class PineconeUploader {
     try {
       const commentId = batch === '1' ? `comments_${parentAsin}` : `comments_${parentAsin}_batch_${batch}`;
       
-      const vector = {
+      const vector: VectorData = {
         id: commentId,
         values: embedding,
         metadata: {
@@ -94,17 +117,17 @@ class PineconeUploader {
       await this.uploadWithRetry(vector);
       console.log(`✅ Uploaded comments ${commentId} (${metadata.reviewCount || 0} reviews)`);
     } catch (error) {
-      console.error(`❌ Error uploading comments ${parentAsin}_${batch}:`, error.message);
+      console.error(`❌ Error uploading comments ${parentAsin}_${batch}:`, (error as Error).message);
       throw error;
     }
   }
 
   /**
    * 批量上传向量
-   * @param {Array} vectors - 向量数组
+   * @param {VectorData[]} vectors - 向量数组
    * @param {number} batchSize - 批处理大小
    */
-  static async uploadBatch(vectors, batchSize = CONFIG.BATCH_SIZE) {
+  static async uploadBatch(vectors: VectorData[], batchSize: number = CONFIG.BATCH_SIZE): Promise<UploadResult> {
     if (!vectors || !Array.isArray(vectors) || vectors.length === 0) {
       throw new Error('Invalid vectors array');
     }
@@ -145,9 +168,9 @@ class PineconeUploader {
 
   /**
    * 删除向量
-   * @param {string|Array} ids - 要删除的向量ID（单个或数组）
+   * @param {string | string[]} ids - 要删除的向量ID（单个或数组）
    */
-  static async deleteVectors(ids) {
+  static async deleteVectors(ids: string | string[]): Promise<void> {
     try {
       const index = pineconeClient.getIndex();
       const idsArray = Array.isArray(ids) ? ids : [ids];
@@ -155,7 +178,7 @@ class PineconeUploader {
       await index.deleteMany(idsArray);
       console.log(`✅ Deleted ${idsArray.length} vectors`);
     } catch (error) {
-      console.error('❌ Error deleting vectors:', error.message);
+      console.error('❌ Error deleting vectors:', (error as Error).message);
       throw error;
     }
   }
@@ -163,18 +186,14 @@ class PineconeUploader {
   /**
    * 清空索引中的所有向量
    */
-  static async clearIndex() {
+  static async clearIndex(): Promise<void> {
     try {
       const index = pineconeClient.getIndex();
       await index.deleteAll();
       console.log('✅ Index cleared successfully');
     } catch (error) {
-      console.error('❌ Error clearing index:', error.message);
+      console.error('❌ Error clearing index:', (error as Error).message);
       throw error;
     }
   }
 }
-
-export {
-  PineconeUploader
-};
