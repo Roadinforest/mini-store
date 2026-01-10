@@ -5,6 +5,7 @@ import SearchProductsByName_Tool, { search_products_by_name_function_definition 
 import Jump_Product_Page, {jump_product_page_function_definition} from "./jump_product_page";
 import RagSearchProducts_Tool, { rag_search_products_function_definition } from "./rag_search_products";
 import GetAllProductNames_Tool, { get_all_product_names_function_definition } from "./get_all_product_names";
+import SearchAgent_Tool, { search_agent_function_definition } from "./search_agent";
 
 // 1. 定义工具结构
 const toolsDefinition = [
@@ -15,6 +16,7 @@ const toolsDefinition = [
     jump_product_page_function_definition,
     rag_search_products_function_definition,
     get_all_product_names_function_definition,
+    search_agent_function_definition,
 ];
 
 // 2. 建立映射关系 (Name -> Function)
@@ -26,6 +28,7 @@ const toolsMap: Record<string, Function> = {
   jump_product_page: Jump_Product_Page,
   rag_search_products: RagSearchProducts_Tool,
   get_all_product_names: GetAllProductNames_Tool,
+  search_agent: SearchAgent_Tool,
 };
 
 export { toolsDefinition, toolsMap };

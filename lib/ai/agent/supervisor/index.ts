@@ -8,13 +8,13 @@ import { hello_tool_function_name } from "../../tools/hello_tool";
 import { jump_product_page_function_name } from "../../tools/jump_product_page";
 import { rag_search_products_function_name } from "../../tools/rag_search_products";
 import { search_products_by_name_function_name } from "../../tools/search_products_by_name";
-import { get_all_product_names_function_name } from "../../tools/get_all_product_names";
+import { search_agent_function_name } from "../../tools/search_agent";
 
 const modelConfig : ModelConfig = {
     model: "qwen-max",
     temperature: 0.0,
     max_tokens: 2048,
-    max_turns: 5,
+    max_turns: 15,
 };
 
 export class SupervisorAgent extends BaseAgent {
@@ -30,7 +30,7 @@ export class SupervisorAgent extends BaseAgent {
         jump_product_page_function_name,
         rag_search_products_function_name,
         search_products_by_name_function_name,
-        get_all_product_names_function_name,
+        search_agent_function_name,
       ],
       modelConfig: modelConfig,
     });
