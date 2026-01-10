@@ -19,4 +19,5 @@ export const hello_tool_function_definition = {
   },
 }
 
+export const hello_tool_function_name = "hello_tool";
 export default Hello_Tool;

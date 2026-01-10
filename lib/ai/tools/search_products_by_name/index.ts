@@ -48,4 +48,5 @@ export const search_products_by_name_function_definition = {
   },
 }
 
+export const search_products_by_name_function_name = "search_products_by_name";
 export default SearchProductsByName_Tool;

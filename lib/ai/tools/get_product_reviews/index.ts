@@ -40,4 +40,5 @@ export const get_product_reviews_function_definition = {
   },
 }
 
+export const get_product_reviews_function_name = "get_product_reviews";
 export default GetProductReviews_Tool;

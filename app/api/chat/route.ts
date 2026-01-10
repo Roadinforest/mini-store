@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { runAgent } from '@/lib/agent/mainLoop';
+import { runAgent } from '@/lib/ai/agent/mainLoop';
 
 export async function POST(req: NextRequest) {
   try {

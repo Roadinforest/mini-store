@@ -42,4 +42,5 @@ export const get_product_details_function_definition = {
   },
 }
 
+export const get_product_details_function_name = "get_product_details";
 export default GetProductDetails_Tool;

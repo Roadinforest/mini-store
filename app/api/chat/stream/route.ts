@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { runAgentStream } from '@/lib/agent/mainLoop';
+import { SupervisorAgent } from '@/lib/ai/agent/supervisor';
 import { chatInputSchema } from '@/lib/trpc/schemas';
 import { safeStreamProcessor, createErrorChunk } from '@/lib/streaming-utils';
 
@@ -12,10 +12,11 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
+        const agent = new SupervisorAgent();
         
         try {
           const streamGenerator = safeStreamProcessor(
-            runAgentStream(messages),
+            agent.run(messages),
             (error) => createErrorChunk(`处理请求时出错: ${error.message}`)
           );
           

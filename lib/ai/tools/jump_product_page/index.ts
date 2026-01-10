@@ -39,4 +39,5 @@ export const jump_product_page_function_definition = {
   },
 };
 
+export const jump_product_page_function_name = "jump_product_page";
 export default Jump_Product_Page;

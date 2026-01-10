@@ -1,5 +1,5 @@
 import { initTRPC } from '@trpc/server';
-import { runAgent } from '@/lib/agent/mainLoop';
+import { runAgent } from '@/lib/ai/agent/mainLoop';
 import { chatInputSchema, ChatMessage } from './schemas';
 
 const t = initTRPC.create();

@@ -85,4 +85,5 @@ export const rag_search_products_function_definition = {
   },
 }
 
+export const rag_search_products_function_name = "rag_search_products";
 export default RagSearchProducts_Tool;
