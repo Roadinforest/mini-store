@@ -208,3 +208,18 @@ export async function getFeaturedProducts() {
 
   return convertToPlainObject(data);
 }
+
+// Get all product names
+export async function getAllProductNames() {
+  const data = await prisma.product.findMany({
+    select: {
+      id: true,
+      name: true,
+      category: true,
+      brand: true,
+    },
+    orderBy: { name: 'asc' },
+  });
+
+  return convertToPlainObject(data);
+}
