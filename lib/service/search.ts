@@ -1,8 +1,7 @@
 import { prisma } from '@/db/prisma';
-import { PineconeQuery, generateEmbedding } from '@/lib/rag/pinecone';
+import { PineconeQuery, generateEmbedding } from '@/lib/service/pinecone';
 import { searchProductsByNameWithTS } from '@/lib/actions/product.actions';
 import { rerankWithQwen } from './rerank';
-
 
 const RRF_K = 60;
 
