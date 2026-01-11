@@ -9,6 +9,7 @@ import { jump_product_page_function_name } from "../../tools/jump_product_page";
 import { rag_search_products_function_name } from "../../tools/rag_search_products";
 import { search_products_by_name_function_name } from "../../tools/search_products_by_name";
 import { search_agent_function_name } from "../../tools/search_agent";
+import { review_agent_function_name } from "../../tools/review_agent";
 
 const modelConfig : ModelConfig = {
     model: "qwen-max",
@@ -31,6 +32,7 @@ export class SupervisorAgent extends BaseAgent {
         rag_search_products_function_name,
         search_products_by_name_function_name,
         search_agent_function_name,
+        review_agent_function_name,
       ],
       modelConfig: modelConfig,
     });

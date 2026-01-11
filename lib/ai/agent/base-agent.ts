@@ -40,7 +40,7 @@ export class BaseAgent implements IAgent {
 
     if (currentMessages[0]?.role !== 'system') {
       currentMessages.unshift(systemPromptMessage);
-      console.log('🤖 Initializing with system prompt.');
+      console.log(`🤖 Initializing ${this.name} with system prompt.`);
     }
 
     yield { type: 'thinking', content: '正在思考...' };
