@@ -3,7 +3,7 @@ import GetProductDetails_Tool, { get_product_details_function_definition } from 
 import GetProductReviews_Tool, { get_product_reviews_function_definition } from "./get_product_reviews";
 import SearchProductsByName_Tool, { search_products_by_name_function_definition } from "./search_products_by_name";
 import Jump_Product_Page, {jump_product_page_function_definition} from "./jump_product_page";
-import RagSearchProducts_Tool, { rag_search_products_function_definition } from "./rag_search_products";
+import HybridSearchProducts_Tool, {hybrid_search_products_function_definition} from "./hybrid_search_products";
 import GetAllProductNames_Tool, { get_all_product_names_function_definition } from "./get_all_product_names";
 import SearchAgent_Tool, { search_agent_function_definition } from "./search_agent";
 import ReviewAgent_Tool, { review_agent_function_definition } from "./review_agent";
@@ -15,7 +15,7 @@ const toolsDefinition = [
     get_product_reviews_function_definition,
     search_products_by_name_function_definition,
     jump_product_page_function_definition,
-    rag_search_products_function_definition,
+    hybrid_search_products_function_definition,
     get_all_product_names_function_definition,
     search_agent_function_definition,
     review_agent_function_definition,
@@ -28,7 +28,7 @@ const toolsMap: Record<string, Function> = {
   get_product_reviews: GetProductReviews_Tool,
   search_products_by_name: SearchProductsByName_Tool,
   jump_product_page: Jump_Product_Page,
-  rag_search_products: RagSearchProducts_Tool,
+  hybrid_search_products: HybridSearchProducts_Tool,
   get_all_product_names: GetAllProductNames_Tool,
   search_agent: SearchAgent_Tool,
   review_agent: ReviewAgent_Tool,

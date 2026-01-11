@@ -3,7 +3,7 @@ import { BaseAgent } from "../base-agent";
 import { searchAgentPrompts } from "./prompt";
 
 import { search_products_by_name_function_name } from "../../tools/search_products_by_name";
-import { rag_search_products_function_name } from "../../tools/rag_search_products";
+import { hybrid_search_products_function_name} from "../../tools/hybrid_search_products";
 import { get_all_product_names_function_name } from "../../tools/get_all_product_names";
 
 const modelConfig: ModelConfig = {
@@ -21,7 +21,7 @@ export class SearchAgent extends BaseAgent {
       systemPrompt: searchAgentPrompts,
       tools: [
         search_products_by_name_function_name,
-        rag_search_products_function_name,
+        hybrid_search_products_function_name,
         get_all_product_names_function_name,
       ],
       modelConfig: modelConfig,

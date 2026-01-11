@@ -223,3 +223,31 @@ export async function getAllProductNames() {
 
   return convertToPlainObject(data);
 }
+
+
+export async function searchProductsByNameWithTS(query: string) {
+  // 1. 处理查询词
+  // 注意：websearch_to_tsquery 能够很好地处理自然语言
+  const formattedQuery = query.trim();
+
+  // 2. 执行 Raw SQL
+  const products = await prisma.$queryRaw`
+    SELECT 
+      id, 
+      name, 
+      price, 
+      brand,
+      -- [核心] ts_rank: 计算相关性分数
+      -- 原理：它会看 query 里的词在 name 里出现了几次 (TF)，以及位置靠不靠前
+      ts_rank(to_tsvector('english', name), websearch_to_tsquery('english', ${formattedQuery})) as score
+    FROM "Product"
+    WHERE 
+      -- 筛选：name 转成的向量 必须包含 query 转成的向量
+      to_tsvector('english', name) @@ websearch_to_tsquery('english', ${formattedQuery})
+    ORDER BY score DESC -- [核心] 按分数从高到低排
+    LIMIT 20;
+  `;
+
+  // 3. 序列化处理 (Prisma Raw Query 返回的 Decimal 需要转 String/Number)
+  return JSON.parse(JSON.stringify(products));
+}
