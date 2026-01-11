@@ -1,3 +1,11 @@
 {
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "typescript.validate.enable": true,
+    "javascript.validate.enable": true,
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "javascript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.autoImports": true,
+    "javascript.suggest.autoImports": true,
+    "typescript.check.npmIsInstalled": true,
+    "javascript.implicitProjectConfig.checkJs": true
 }

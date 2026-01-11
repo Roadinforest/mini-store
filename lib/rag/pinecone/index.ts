@@ -1,7 +1,7 @@
-import { PineconeClient, pineconeClient, CONFIG } from './client';
-import { PineconeUploader, VectorData, UploadResult } from './uploader';
-import { PineconeQuery, VectorQueryOptions, VectorQueryResponse } from './query';
-import { generateEmbedding } from './utils';
+import { PineconeClient, pineconeClient, CONFIG } from './client.ts';
+import { PineconeUploader, type VectorData, type UploadResult } from './uploader.ts';
+import { PineconeQuery, type VectorQueryOptions, type VectorQueryResponse } from './query.ts';
+import { generateEmbedding } from './utils.ts';
 
 export interface EmbeddingFunction {
   (text: string): Promise<number[]>;

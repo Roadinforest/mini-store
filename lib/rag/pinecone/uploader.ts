@@ -1,4 +1,4 @@
-import { pineconeClient, CONFIG } from './client';
+import { pineconeClient, CONFIG } from './client.ts';
 
 export interface VectorData {
   id: string;

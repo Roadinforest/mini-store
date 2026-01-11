@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// 加载环境变量
-dotenv.config();
+// 加载环境变量 - 指定项目根目录的.env文件路径
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 // 常量配置
 const CONFIG = {
