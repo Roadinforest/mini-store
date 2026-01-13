@@ -20,8 +20,8 @@ export default function ShopAgentFloat() {
             group relative
             w-14 h-14 
             rounded-full 
-            bg-gradient-to-r from-blue-500 to-blue-600
-            hover:from-blue-600 hover:to-blue-700
+            bg-gradient-to-r from-gray-700 to-gray-900
+            hover:from-gray-700 hover:to-gray-900
             shadow-lg hover:shadow-xl
             transition-all duration-300 ease-in-out
             flex items-center justify-center
@@ -38,8 +38,8 @@ export default function ShopAgentFloat() {
           {/* 脉冲动画 */}
           {!isOpen && (
             <>
-              <span className="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75 animate-ping"></span>
-              <span className="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="absolute inline-flex h-3/4 w-3/4 rounded-full bg-gray-700 opacity-75 animate-ping"></span>
+              <span className="absolute inline-flex h-full w-full rounded-full bg-gray-800 opacity-75"></span>
             </>
           )}
         </button>

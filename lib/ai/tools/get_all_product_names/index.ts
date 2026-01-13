@@ -2,13 +2,15 @@ import { z } from 'zod';
 import { getAllProductNames } from '@/lib/actions/product.actions';
 import { Tool, ToolDefinition, ToolHandler } from '../types';
 
-const getAllProductNamesSchema = z.object({});
+const getAllProductNamesSchema = z.object({
+  limit: z.number().optional().describe("要获取的产品名称的最大数量，默认为100"),
+});
 
 type GetAllProductNamesArgs = z.infer<typeof getAllProductNamesSchema>;
 
 const handler: ToolHandler<GetAllProductNamesArgs> = async (args: GetAllProductNamesArgs) => {
   try {
-    const products = await getAllProductNames();
+    const products = await getAllProductNames(args.limit);
 
     if (!products || products.length === 0) {
       return '当前商店中没有产品';

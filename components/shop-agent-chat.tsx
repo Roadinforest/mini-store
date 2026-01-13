@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { X, Send, Loader2 } from 'lucide-react';
+import { X, Send, Loader2, SquarePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ReactMarkdown from 'react-markdown';
-import type { ChatMessage, StreamChunk } from '@/lib/trpc/schemas';
+import type { ChatMessage } from '@/lib/trpc/schemas';
 import { parseStreamChunk } from '@/lib/streaming-utils';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -100,7 +100,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
             try {
               const chunk = parseStreamChunk(data);
               if (!chunk) continue;
-              
+
               if (chunk.type === 'partial' && chunk.content) {
                 // 更新助手消息内容
                 setMessages((prev) => {
@@ -129,7 +129,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                 // 处理导航
                 console.log('Navigating to:', chunk.url);
                 router.push(chunk.url);
-                
+
                 setMessages((prev) => {
                   const newMessages = [...prev];
                   if (newMessages[assistantMessageIndex]) {
@@ -208,24 +208,45 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
     }
   };
 
+  const onNewChat = () => {
+    setMessages([
+      {
+        role: 'assistant',
+        content: '你好！我是Mini-Store智能购物助手，有什么可以帮助你的吗？',
+      },
+    ]);
+    setInput('');
+    inputRef.current?.focus();
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed bottom-24 right-6 z-50 flex flex-col bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 w-[380px] h-[600px] max-h-[80vh]">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg">
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-gray-500 to-gray-600 rounded-t-lg">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-          <h3 className="font-semibold text-white">店铺智能助手</h3>
+          <div className="w-3 h-3 bg-yellow-300 rounded-full animate-pulse"></div>
+          <h3 className="font-semibold text-white">Shop Helper</h3>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          className="h-8 w-8 text-white hover:bg-blue-600"
-        >
-          <X className="h-4 w-4" />
-        </Button>
+        <div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onNewChat}
+            className="h-8 w-8 text-white hover:bg-gray-600"
+          >
+            <SquarePlus className="h-4 w-4 text-white" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8 text-white hover:bg-gray-600"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -233,17 +254,14 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={cn(
-              'flex',
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            )}
+            className={cn('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}
           >
             <div
               className={cn(
                 'max-w-[80%] rounded-lg p-3 text-sm',
                 message.role === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100'
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100',
               )}
             >
               {message.role === 'assistant' ? (
@@ -252,10 +270,16 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                     components={{
                       // 自定义 Markdown 组件样式
                       p: ({ children }) => <p className="mb-0">{children}</p>,
-                      ul: ({ children }) => <ul className="list-disc list-inside mb-0 space-y-0">{children}</ul>,
-                      ol: ({ children }) => <ol className="list-decimal list-inside mb-0 space-y-0">{children}</ol>,
+                      ul: ({ children }) => (
+                        <ul className="list-disc list-inside mb-0 space-y-0">{children}</ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal list-inside mb-0 space-y-0">{children}</ol>
+                      ),
                       li: ({ children }) => <li className="mb-0 leading-tight">{children}</li>,
-                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      strong: ({ children }) => (
+                        <strong className="font-semibold">{children}</strong>
+                      ),
                       em: ({ children }) => <em className="italic">{children}</em>,
                       pre: ({ children }) => (
                         <pre className="bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-x-auto text-xs font-mono mb-2 last:mb-0">
@@ -272,7 +296,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                           href={href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+                          className="text-gray-600 dark:text-gray-400 underline hover:text-gray-800 dark:hover:text-gray-300"
                         >
                           {children}
                         </a>
@@ -283,9 +307,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                   </ReactMarkdown>
                 </div>
               ) : (
-                <p className="whitespace-pre-wrap break-words">
-                  {message.content}
-                </p>
+                <p className="whitespace-pre-wrap break-words">{message.content}</p>
               )}
             </div>
           </div>
@@ -316,7 +338,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="bg-blue-500 hover:bg-blue-600"
+            className="bg-gray-500 hover:bg-gray-600"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

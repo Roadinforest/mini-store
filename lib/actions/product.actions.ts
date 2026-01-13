@@ -210,7 +210,7 @@ export async function getFeaturedProducts() {
 }
 
 // Get all product names
-export async function getAllProductNames() {
+export async function getAllProductNames(limit: number = 100) {
   const data = await prisma.product.findMany({
     select: {
       id: true,
@@ -219,6 +219,7 @@ export async function getAllProductNames() {
       brand: true,
     },
     orderBy: { name: 'asc' },
+    take: limit,
   });
 
   return convertToPlainObject(data);
