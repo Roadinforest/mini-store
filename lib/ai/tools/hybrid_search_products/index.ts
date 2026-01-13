@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import { searchProducts } from '@/lib/service/search';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const hybridSearchProductsSchema = z.object({
   query: z.string().describe('产品搜索查询文本'),
   limit: z.number().optional().default(10).describe('返回结果数量，默认为10，最大20'),
 });
 
-export type HybridSearchProductsArgs = z.infer<typeof hybridSearchProductsSchema>;
+type HybridSearchProductsArgs = z.infer<typeof hybridSearchProductsSchema>;
 
-const HybridSearchProducts_Tool = async (args: HybridSearchProductsArgs) => {
+const handler: ToolHandler<HybridSearchProductsArgs> = async (args: HybridSearchProductsArgs) => {
   try {
     const { query, limit = 10 } = args;
     
@@ -69,7 +70,7 @@ const HybridSearchProducts_Tool = async (args: HybridSearchProductsArgs) => {
   }
 };
 
-export const hybrid_search_products_function_definition = {
+const definition : ToolDefinition = {
   type: "function" as const,
   function: {
     name: "hybrid_search_products",
@@ -78,5 +79,9 @@ export const hybrid_search_products_function_definition = {
   },
 }
 
-export const hybrid_search_products_function_name = "hybrid_search_products";
+const HybridSearchProducts_Tool:Tool<HybridSearchProductsArgs> = {
+  definition: definition,
+  handler: handler,
+}
+
 export default HybridSearchProducts_Tool;

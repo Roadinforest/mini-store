@@ -1,14 +1,14 @@
 import { z } from 'zod';
-
 import { getProductById } from '@/lib/actions/product.actions';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const getProductDetailsSchema = z.object({
   productId: z.string().describe('产品ID，用于获取产品详情'),
 });
 
-export type GetProductDetailsArgs = z.infer<typeof getProductDetailsSchema>;
+type GetProductDetailsArgs = z.infer<typeof getProductDetailsSchema>;
 
-const GetProductDetails_Tool = async (args: GetProductDetailsArgs) => {
+const handler: ToolHandler<GetProductDetailsArgs> = async (args: GetProductDetailsArgs) => {
   try {
     const product = await getProductById(args.productId);
     
@@ -33,7 +33,7 @@ const GetProductDetails_Tool = async (args: GetProductDetailsArgs) => {
   }
 }
 
-export const get_product_details_function_definition = {
+const definition : ToolDefinition= {
   type: "function",
   function: {
     name: "get_product_details",
@@ -42,5 +42,9 @@ export const get_product_details_function_definition = {
   },
 }
 
-export const get_product_details_function_name = "get_product_details";
+const GetProductDetails_Tool:Tool<GetProductDetailsArgs> = {
+  definition: definition,
+  handler: handler,
+}
+
 export default GetProductDetails_Tool;

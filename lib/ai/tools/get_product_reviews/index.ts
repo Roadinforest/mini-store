@@ -1,13 +1,14 @@
 import { z } from 'zod';
 import { getReviews } from '@/lib/actions/review.actions';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const getProductReviewsSchema = z.object({
   productId: z.string().describe('产品ID，用于获取该产品的所有评论'),
 });
 
-export type GetProductReviewsArgs = z.infer<typeof getProductReviewsSchema>;
+type GetProductReviewsArgs = z.infer<typeof getProductReviewsSchema>;
 
-const GetProductReviews_Tool = async (args: GetProductReviewsArgs) => {
+const handler: ToolHandler<GetProductReviewsArgs> = async (args: GetProductReviewsArgs) => {
   try {
     const result = await getReviews({ productId: args.productId });
     const reviews = result.data;
@@ -31,7 +32,7 @@ const GetProductReviews_Tool = async (args: GetProductReviewsArgs) => {
   }
 }
 
-export const get_product_reviews_function_definition = {
+const definition : ToolDefinition= {
   type: "function",
   function: {
     name: "get_product_reviews",
@@ -40,5 +41,9 @@ export const get_product_reviews_function_definition = {
   },
 }
 
-export const get_product_reviews_function_name = "get_product_reviews";
+const GetProductReviews_Tool:Tool<GetProductReviewsArgs> = {
+  definition: definition,
+  handler: handler,
+}
+
 export default GetProductReviews_Tool;

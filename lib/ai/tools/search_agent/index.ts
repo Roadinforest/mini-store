@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const searchAgentSchema = z.object({
   query: z.string().describe('用户的搜索查询，描述想要寻找的产品'),
@@ -6,11 +7,11 @@ const searchAgentSchema = z.object({
   method: z.enum(['name', 'rag', 'auto']).optional().describe('搜索方法：name（按名称）、rag（语义搜索）、auto（自动选择，默认）'),
 });
 
-export type SearchAgentArgs = z.infer<typeof searchAgentSchema>;
+type SearchAgentArgs = z.infer<typeof searchAgentSchema>;
 
 let searchAgentInstance: any = null;
 
-const SearchAgent_Tool = async (args: SearchAgentArgs) => {
+const handler: ToolHandler<SearchAgentArgs> = async (args: SearchAgentArgs) => {
   try {
     const { query, limit = 10, method = 'auto' } = args;
     
@@ -31,7 +32,7 @@ const SearchAgent_Tool = async (args: SearchAgentArgs) => {
   }
 }
 
-export const search_agent_function_definition = {
+const definition : ToolDefinition= {
   type: "function",
   function: {
     name: "search_agent",
@@ -40,6 +41,9 @@ export const search_agent_function_definition = {
   },
 } as const;
 
-export const search_agent_function_name = search_agent_function_definition.function.name;
+const SearchAgent_Tool:Tool<SearchAgentArgs> = {
+  definition: definition,
+  handler: handler,
+}
 
 export default SearchAgent_Tool;

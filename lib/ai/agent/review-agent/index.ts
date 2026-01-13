@@ -2,8 +2,7 @@ import { ModelConfig } from "../../core/types";
 import { BaseAgent } from "../base-agent";
 import { reviewAgentPrompts } from "./prompt";
 
-import { get_product_reviews_function_name } from "../../tools/get_product_reviews";
-import { get_product_details_function_name } from "../../tools/get_product_details";
+import { TOOL_NAMES } from "../../tools";
 
 const modelConfig: ModelConfig = {
     model: "qwen-max",
@@ -19,8 +18,8 @@ export class ReviewAgent extends BaseAgent {
       description: 'A specialized agent for analyzing and retrieving product reviews and ratings.',
       systemPrompt: reviewAgentPrompts,
       tools: [
-        get_product_reviews_function_name,
-        get_product_details_function_name,
+        TOOL_NAMES.GET_PRODUCT_REVIEWS,
+        TOOL_NAMES.GET_PRODUCT_DETAILS,
       ],
       modelConfig: modelConfig,
     });

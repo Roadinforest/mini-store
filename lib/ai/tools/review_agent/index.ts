@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const reviewAgentSchema = z.object({
   productId: z.string().describe('产品ID，用于获取该产品的评论信息'),
@@ -6,11 +7,11 @@ const reviewAgentSchema = z.object({
   summary: z.boolean().optional().describe('是否需要提供评论摘要和购买建议，默认为true'),
 });
 
-export type ReviewAgentArgs = z.infer<typeof reviewAgentSchema>;
+type ReviewAgentArgs = z.infer<typeof reviewAgentSchema>;
 
 let reviewAgentInstance: any = null;
 
-const ReviewAgent_Tool = async (args: ReviewAgentArgs) => {
+const handler: ToolHandler<ReviewAgentArgs> = async (args: ReviewAgentArgs) => {
   try {
     const { productId, analysis = true, summary = true } = args;
     
@@ -31,7 +32,7 @@ const ReviewAgent_Tool = async (args: ReviewAgentArgs) => {
   }
 }
 
-export const review_agent_function_definition = {
+const definition : ToolDefinition = {
   type: "function",
   function: {
     name: "review_agent",
@@ -40,6 +41,9 @@ export const review_agent_function_definition = {
   },
 } as const;
 
-export const review_agent_function_name = review_agent_function_definition.function.name;
+const ReviewAgent_Tool:Tool<ReviewAgentArgs> = {
+  definition: definition,
+  handler: handler,
+}
 
 export default ReviewAgent_Tool;

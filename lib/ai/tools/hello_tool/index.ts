@@ -1,16 +1,17 @@
 import { z } from 'zod';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const helloToolSchema = z.object({
   query: z.string().describe('输入的query,用于生成问候语'),
 });
 
-export type HelloToolArgs = z.infer<typeof helloToolSchema>;
+type HelloToolArgs = z.infer<typeof helloToolSchema>;
 
-const Hello_Tool = async (args: HelloToolArgs) => {
+const handler: ToolHandler<HelloToolArgs> = async (args: HelloToolArgs) => {
   return `Hello World ${args.query}`;
 }
 
-export const hello_tool_function_definition = {
+const definition: ToolDefinition = {
   type: "function",
   function: {
     name: "hello_tool",
@@ -19,5 +20,9 @@ export const hello_tool_function_definition = {
   },
 }
 
-export const hello_tool_function_name = "hello_tool";
+const Hello_Tool: Tool<HelloToolArgs> = {
+  definition: definition,
+  handler: handler,
+}
+
 export default Hello_Tool;

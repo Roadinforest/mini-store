@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import { getAllProducts } from '@/lib/actions/product.actions';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const searchProductsByNameSchema = z.object({
   query: z.string().describe('搜索关键词，用于按产品名称搜索产品'),
   limit: z.number().optional().describe('返回结果的最大数量，默认为10'),
 });
 
-export type SearchProductsByNameArgs = z.infer<typeof searchProductsByNameSchema>;
+type SearchProductsByNameArgs = z.infer<typeof searchProductsByNameSchema>;
 
-const SearchProductsByName_Tool = async (args: SearchProductsByNameArgs) => {
+const handler: ToolHandler<SearchProductsByNameArgs> = async (args: SearchProductsByNameArgs) => {
   try {
     const { query, limit = 10 } = args;
     
@@ -39,7 +40,7 @@ ID: ${product.id}
   }
 }
 
-export const search_products_by_name_function_definition = {
+const definition : ToolDefinition = {
   type: "function",
   function: {
     name: "search_products_by_name",
@@ -48,5 +49,9 @@ export const search_products_by_name_function_definition = {
   },
 }
 
-export const search_products_by_name_function_name = "search_products_by_name";
+const SearchProductsByName_Tool: Tool<SearchProductsByNameArgs> = {
+  definition: definition,
+  handler: handler,
+}
+
 export default SearchProductsByName_Tool;

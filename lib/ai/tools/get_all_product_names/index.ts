@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { getAllProductNames } from '@/lib/actions/product.actions';
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const getAllProductNamesSchema = z.object({});
 
-export type GetAllProductNamesArgs = z.infer<typeof getAllProductNamesSchema>;
+type GetAllProductNamesArgs = z.infer<typeof getAllProductNamesSchema>;
 
-const GetAllProductNames_Tool = async (args: GetAllProductNamesArgs) => {
+const handler: ToolHandler<GetAllProductNamesArgs> = async (args: GetAllProductNamesArgs) => {
   try {
     const products = await getAllProductNames();
 
@@ -23,7 +24,7 @@ const GetAllProductNames_Tool = async (args: GetAllProductNamesArgs) => {
   }
 }
 
-export const get_all_product_names_function_definition = {
+const definition : ToolDefinition = {
   type: "function",
   function: {
     name: "get_all_product_names",
@@ -32,5 +33,9 @@ export const get_all_product_names_function_definition = {
   },
 }
 
-export const get_all_product_names_function_name = "get_all_product_names";
+const GetAllProductNames_Tool:Tool<GetAllProductNamesArgs> = {
+  definition: definition,
+  handler: handler,
+}
+
 export default GetAllProductNames_Tool;

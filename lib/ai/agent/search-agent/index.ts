@@ -1,10 +1,8 @@
 import { ModelConfig } from "../../core/types";
 import { BaseAgent } from "../base-agent";
 import { searchAgentPrompts } from "./prompt";
+import { TOOL_NAMES } from "../../tools";
 
-import { search_products_by_name_function_name } from "../../tools/search_products_by_name";
-import { hybrid_search_products_function_name} from "../../tools/hybrid_search_products";
-import { get_all_product_names_function_name } from "../../tools/get_all_product_names";
 
 const modelConfig: ModelConfig = {
     model: "qwen-max",
@@ -20,9 +18,9 @@ export class SearchAgent extends BaseAgent {
       description: 'A specialized agent for searching and finding products based on user queries.',
       systemPrompt: searchAgentPrompts,
       tools: [
-        search_products_by_name_function_name,
-        hybrid_search_products_function_name,
-        get_all_product_names_function_name,
+        TOOL_NAMES.SEARCH_PRODUCTS_BY_NAME,
+        TOOL_NAMES.HYBRID_SEARCH_PRODUCTS,
+        TOOL_NAMES.GET_ALL_PRODUCT_NAMES,
       ],
       modelConfig: modelConfig,
     });

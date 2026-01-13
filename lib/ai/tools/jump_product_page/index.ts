@@ -1,13 +1,14 @@
 import { getSlugById } from "@/lib/actions/product.actions";
 import { z } from "zod";
+import { Tool, ToolDefinition, ToolHandler } from '../types';
 
 const jumpProductPageSchema = z.object({
   productId: z.string().describe("要跳转到的产品页面的产品ID"),
 });
 
-export type JumpProductPageArgs = z.infer<typeof jumpProductPageSchema>;
+type JumpProductPageArgs = z.infer<typeof jumpProductPageSchema>;
 
-const Jump_Product_Page = async (args: JumpProductPageArgs) => {
+const handler: ToolHandler<JumpProductPageArgs> = async (args: JumpProductPageArgs) => {
   const slug = await getSlugById(args.productId);
   if (!slug) {
     return `未找到ID为 ${args.productId} 的产品，无法跳转`;
@@ -29,7 +30,7 @@ const Jump_Product_Page = async (args: JumpProductPageArgs) => {
   };
 };
 
-export const jump_product_page_function_definition = {
+const definition : ToolDefinition = {
   type: "function",
   function: {
     name: "jump_product_page",
@@ -39,5 +40,9 @@ export const jump_product_page_function_definition = {
   },
 };
 
-export const jump_product_page_function_name = "jump_product_page";
-export default Jump_Product_Page;
+const JumpProductPage_Tool: Tool<JumpProductPageArgs> = {
+  definition: definition,
+  handler: handler,
+}
+
+export default JumpProductPage_Tool;
