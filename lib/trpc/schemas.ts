@@ -4,6 +4,8 @@ export const chatMessageSchema = z.object({
   role: z.union([z.literal('user'), z.literal('assistant'), z.literal('system')]),
   content: z.string(),
   url: z.string().optional(),
+  messageType: z.union([z.literal('normal'), z.literal('tool_call')]).optional(),
+  toolName: z.string().optional(),
 });
 
 export const chatInputSchema = z.object({

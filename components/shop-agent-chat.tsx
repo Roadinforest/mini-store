@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { X, Send, Loader2, SquarePlus } from 'lucide-react';
+import { X, Send, Loader2, SquarePlus, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ReactMarkdown from 'react-markdown';
@@ -149,6 +149,8 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                     newMessages[assistantMessageIndex] = {
                       ...newMessages[assistantMessageIndex],
                       content: chunk.content || `正在使用工具: ${chunk.toolName}`,
+                      messageType: 'tool_call',
+                      toolName: chunk.toolName,
                     };
                   }
                   return newMessages;
@@ -264,7 +266,17 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                   : '',
               )}
             >
-              {message.role === 'assistant' ? (
+              {message.messageType === 'tool_call' ? (
+                <div className="flex items-start gap-2">
+                  <Wrench className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">
+                      {message.toolName || '工具调用'}
+                    </div>
+                    <div className="text-gray-700 dark:text-gray-300">{message.content}</div>
+                  </div>
+                </div>
+              ) : message.role === 'assistant' ? (
                 <div className="whitespace-pre-wrap break-words">
                   <ReactMarkdown
                     components={{
