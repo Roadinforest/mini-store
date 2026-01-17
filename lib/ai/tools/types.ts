@@ -12,4 +12,5 @@ export type ToolHandler<T = any> = (args: T) => Promise<any>;
 export interface Tool<T = any> {
   definition: ToolDefinition;
   handler: ToolHandler<T>;
+  hintFunction?: (args: T) => string;
 }

@@ -40,9 +40,14 @@ const definition : ToolDefinition = {
   },
 };
 
+const hintFunction = (args: JumpProductPageArgs): string => {
+  return `正在跳转到ID为 ${args.productId} 的产品页面`;
+}
+
 const JumpProductPage_Tool: Tool<JumpProductPageArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default JumpProductPage_Tool;

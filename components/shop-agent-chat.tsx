@@ -224,9 +224,9 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
   return (
     <div className="fixed bottom-24 right-6 z-50 flex flex-col bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 w-[380px] h-[600px] max-h-[80vh]">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-gray-500 to-gray-600 rounded-t-lg">
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-gray-600 to-gray-700 rounded-t-lg">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-yellow-300 rounded-full animate-pulse"></div>
+          {/* <div className="w-3 h-3 bg-yellow-300 rounded-full animate-pulse"></div> */}
           <h3 className="font-semibold text-white">Shop Helper</h3>
         </div>
         <div>
@@ -261,7 +261,7 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
                 'max-w-[80%] rounded-lg p-3 text-sm',
                 message.role === 'user'
                   ? 'bg-gray-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100',
+                  : '',
               )}
             >
               {message.role === 'assistant' ? (
@@ -338,12 +338,12 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="bg-gray-500 hover:bg-gray-600"
+            className="bg-transparent"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4 text-black dark:text-white" />
             )}
           </Button>
         </div>

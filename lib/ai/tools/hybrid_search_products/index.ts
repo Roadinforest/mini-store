@@ -79,9 +79,15 @@ const definition : ToolDefinition = {
   },
 }
 
+const hintFunction = (args: HybridSearchProductsArgs): string => {
+  return `正在使用混合搜索技术搜索与 "${args.query}" 相关的产品\n返回最多 ${args.limit || 10} 个结果`;
+}
+
+
 const HybridSearchProducts_Tool:Tool<HybridSearchProductsArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default HybridSearchProducts_Tool;

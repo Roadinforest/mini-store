@@ -49,9 +49,14 @@ const definition : ToolDefinition = {
   },
 }
 
+const hintFunction = (args: SearchProductsByNameArgs): string => {
+  return `正在按名称搜索与 "${args.query}" 相关的产品\n返回最多 ${args.limit || 10} 个结果`;
+}
+
 const SearchProductsByName_Tool: Tool<SearchProductsByNameArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default SearchProductsByName_Tool;

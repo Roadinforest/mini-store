@@ -45,5 +45,14 @@ const toolsMap: Record<string, Function> = tools.reduce((acc, tool) => {
   return acc;
 }, {} as Record<string, Function>);
 
+// 3. Automatically export all tool hint functions
+const toolHintFunctions: Record<string, (args: any) => string> = tools.reduce((acc, tool) => {
+  if (tool.definition?.function?.name && tool.hintFunction) {
+    acc[tool.definition.function.name] = tool.hintFunction;
+  }
+  return acc;
+}, {} as Record<string, (args: any) => string>);
 
-export { toolsDefinition, toolsMap, TOOL_NAMES};
+
+
+export { toolsDefinition, toolsMap, TOOL_NAMES, toolHintFunctions};

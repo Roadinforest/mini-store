@@ -41,9 +41,14 @@ const definition : ToolDefinition= {
   },
 }
 
+const hintFunction = (args: GetProductReviewsArgs): string => {
+  return `正在获取ID为 ${args.productId} 的产品评论`;
+}
+
 const GetProductReviews_Tool:Tool<GetProductReviewsArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default GetProductReviews_Tool;

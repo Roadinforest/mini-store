@@ -35,9 +35,17 @@ const definition : ToolDefinition = {
   },
 }
 
+const hintFunction = (args: GetAllProductNamesArgs): string => {
+  if (args.limit) {
+    return `正在获取所有产品的名称，最多 ${args.limit} 个`;
+  }
+  return '正在获取所有产品的名称';
+}
+
 const GetAllProductNames_Tool:Tool<GetAllProductNamesArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default GetAllProductNames_Tool;

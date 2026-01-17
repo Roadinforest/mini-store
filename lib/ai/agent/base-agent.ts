@@ -1,6 +1,6 @@
 import { AgentConfig, StreamChunk, IAgent, ModelConfigSchema, ModelConfig } from '../core/types';
 import { OpenAI } from 'openai';
-import { toolsDefinition, toolsMap } from '../tools';
+import { toolHintFunctions, toolsDefinition, toolsMap } from '../tools';
 import { normalizeText } from '../utils';
 import { z } from 'zod';
 
@@ -134,9 +134,15 @@ export class BaseAgent implements IAgent {
           const functionName = toolCall.function.name;
           const args = JSON.parse(toolCall.function.arguments);
 
+          const tool_hint_fn = toolHintFunctions[functionName];
+          let hint = `正在调用工具: ${functionName}`;
+          if (tool_hint_fn) {
+            hint = tool_hint_fn(args);
+          }
+
           yield {
             type: 'tool_call',
-            content: `正在调用工具: ${functionName}`,
+            content: hint,
             toolName: functionName,
             toolArgs: args,
           };

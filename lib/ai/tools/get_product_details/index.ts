@@ -42,9 +42,14 @@ const definition : ToolDefinition= {
   },
 }
 
+const hintFunction = (args: GetProductDetailsArgs): string => {
+  return `正在获取ID为 ${args.productId} 的产品详情`;
+}
+
 const GetProductDetails_Tool:Tool<GetProductDetailsArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default GetProductDetails_Tool;
