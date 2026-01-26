@@ -62,44 +62,61 @@ export function useChatStream() {
               if (!chunk) continue;
 
               if (chunk.type === 'tool_call') {
-                // 为工具调用创建新消息，插入到助手消息之前
+                // 为工具调用创建新消息
                 setMessages((prev) => {
                   const newMessages = [...prev];
-                  // 在 assistantMessageIndex 位置插入工具调用消息
-                  newMessages.splice(assistantMessageIndex, 0, {
-                    role: 'assistant',
-                    content: chunk.content || `正在使用工具: ${chunk.toolName}`,
-                    messageType: 'tool_call',
-                    toolName: chunk.toolName,
-                  });
+                  const currentMsg = newMessages[assistantMessageIndex];
+                  // 如果当前消息是空的或临时状态，替换它；否则插入新消息
+                  if (!currentMsg?.content || currentMsg.content === '正在思考...') {
+                    // 替换当前消息为工具调用
+                    newMessages[assistantMessageIndex] = {
+                      role: 'assistant',
+                      content: chunk.content || `正在使用工具: ${chunk.toolName}`,
+                      messageType: 'tool_call',
+                      toolName: chunk.toolName,
+                    };
+                    // 添加新的空助手消息用于后续响应
+                    newMessages.splice(assistantMessageIndex + 1, 0, {
+                      role: 'assistant',
+                      content: '',
+                    });
+                  } else {
+                    // 在当前消息之前插入工具调用消息
+                    newMessages.splice(assistantMessageIndex, 0, {
+                      role: 'assistant',
+                      content: chunk.content || `正在使用工具: ${chunk.toolName}`,
+                      messageType: 'tool_call',
+                      toolName: chunk.toolName,
+                    });
+                  }
                   return newMessages;
                 });
-                // 更新助手消息索引，因为插入了新消息
+                // 更新助手消息索引到响应消息位置
                 assistantMessageIndex++;
                 // 有内容返回后关闭加载状态
                 setIsLoading(false);
-              } else if (chunk.type === 'partial' && chunk.content) {
+              } else if (chunk.type === 'partial') {
                 // 更新助手消息内容
                 setMessages((prev) => {
                   const newMessages = [...prev];
                   if (newMessages[assistantMessageIndex]) {
                     newMessages[assistantMessageIndex] = {
                       ...newMessages[assistantMessageIndex],
-                      content: chunk.content!,
+                      content: chunk.content || '',
                     };
                   }
                   return newMessages;
                 });
                 // 有内容返回后关闭加载状态
                 setIsLoading(false);
-              } else if (chunk.type === 'complete' && chunk.content) {
+              } else if (chunk.type === 'complete') {
                 // 最终内容
                 setMessages((prev) => {
                   const newMessages = [...prev];
                   if (newMessages[assistantMessageIndex]) {
                     newMessages[assistantMessageIndex] = {
                       ...newMessages[assistantMessageIndex],
-                      content: chunk.content!,
+                      content: chunk.content || '',
                     };
                   }
                   return newMessages;
