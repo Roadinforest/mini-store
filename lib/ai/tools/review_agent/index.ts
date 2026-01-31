@@ -41,9 +41,19 @@ const definition : ToolDefinition = {
   },
 } as const;
 
+const hintFunction = (args: ReviewAgentArgs): string => {
+  // const { productId, analysis = true, summary = true } = args;
+  // const parts = [`正在使用 ReviewAgent 获取评论：产品ID ${productId}`];
+  // parts.push(analysis ? '包含评论分析' : '不含评论分析');
+  // parts.push(summary ? '包含评论摘要' : '不含评论摘要');
+  // return `${parts.join('，')}`;
+  return `Review Agent为您服务，\n正在为您获取并分析产品ID为 ${args.productId} 的评论信息`;
+}
+
 const ReviewAgent_Tool:Tool<ReviewAgentArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default ReviewAgent_Tool;

@@ -41,9 +41,15 @@ const definition : ToolDefinition= {
   },
 } as const;
 
+const hintFunction = (args: SearchAgentArgs): string => {
+  const { query, limit = 10, method = 'auto' } = args;
+  return `Search Agent 全力工作中……`;
+}
+
 const SearchAgent_Tool:Tool<SearchAgentArgs> = {
   definition: definition,
   handler: handler,
+  hintFunction: hintFunction,
 }
 
 export default SearchAgent_Tool;
