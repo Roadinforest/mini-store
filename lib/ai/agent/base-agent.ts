@@ -31,7 +31,7 @@ export class BaseAgent implements IAgent {
   }
 
   async *run(messages: any[]): AsyncGenerator<StreamChunk, void, unknown> {
-    let currentMessages = [...messages];
+    const currentMessages = [...messages];
 
     const systemPromptMessage = {
       role: 'system',
@@ -72,7 +72,7 @@ export class BaseAgent implements IAgent {
       }
 
       let fullContent = '';
-      let toolCalls: any[] = [];
+      const toolCalls: any[] = [];
       let currentToolCall: any = null;
 
       // 处理流式响应

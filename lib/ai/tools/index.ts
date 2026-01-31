@@ -7,7 +7,7 @@ import HybridSearchProducts from "./hybrid_search_products";
 import GetAllProductNames from "./get_all_product_names";
 import SearchAgent from "./search_agent";
 import ReviewAgent from "./review_agent";
-import { Tool } from "./types";
+import { Tool, ToolHandler } from "./types";
 
 // Array of all tool instances
 const tools : Tool[]= [
@@ -38,20 +38,20 @@ const TOOL_NAMES = {
 const toolsDefinition = tools.map((tool) => tool.definition);
 
 // 2. Automatically build the map
-const toolsMap: Record<string, Function> = tools.reduce((acc, tool) => {
+const toolsMap: Record<string, ToolHandler> = tools.reduce((acc, tool) => {
   if (tool.definition?.function?.name && tool.handler) {
     acc[tool.definition.function.name] = tool.handler;
   }
   return acc;
-}, {} as Record<string, Function>);
+}, {} as Record<string, ToolHandler>);
 
 // 3. Automatically export all tool hint functions
-const toolHintFunctions: Record<string, (args: any) => string> = tools.reduce((acc, tool) => {
+const toolHintFunctions: Record<string, (args: unknown) => string> = tools.reduce((acc, tool) => {
   if (tool.definition?.function?.name && tool.hintFunction) {
     acc[tool.definition.function.name] = tool.hintFunction;
   }
   return acc;
-}, {} as Record<string, (args: any) => string>);
+}, {} as Record<string, (args: unknown) => string>);
 
 
 
