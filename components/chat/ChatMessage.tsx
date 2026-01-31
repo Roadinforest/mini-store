@@ -16,7 +16,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
           message.role === 'user'
             ? 'bg-gray-500 text-white'
             : message.messageType === 'tool_call'
-            ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+            ? ''
             : ''
         )}
       >
@@ -35,9 +35,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
 function ToolCallMessage({ message }: { message: MessageType }) {
   return (
     <div className="flex items-start gap-2">
-      <Wrench className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
       <div className="flex-1">
-        <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">
+        <div className="p-1 bg-blue-50 dark:bg-blue-900/20 text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1 border border-blue-200 dark:border-blue-800 flex rounded-sm">
+          <Wrench className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0 mr-2" />
           {message.toolName || '工具调用'}
         </div>
         <div className="text-gray-700 dark:text-gray-300">{message.content}</div>

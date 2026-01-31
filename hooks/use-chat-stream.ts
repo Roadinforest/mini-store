@@ -3,6 +3,171 @@ import { useRouter } from 'next/navigation';
 import type { ChatMessage } from '@/lib/trpc/schemas';
 import { parseStreamChunk } from '@/lib/streaming-utils';
 
+// 类型定义
+type MessageUpdater = React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+type LoadingUpdater = React.Dispatch<React.SetStateAction<boolean>>;
+
+interface StreamHandlers {
+  updateMessage: MessageUpdater;
+  setLoading: LoadingUpdater;
+  navigate: (url: string) => void;
+}
+
+// 更新消息内容的辅助函数
+const updateMessageContent = (
+  setMessages: MessageUpdater,
+  messageIndex: number,
+  updates: Partial<ChatMessage>
+) => {
+  setMessages((prev) => {
+    const newMessages = [...prev];
+    if (newMessages[messageIndex]) {
+      newMessages[messageIndex] = {
+        ...newMessages[messageIndex],
+        ...updates,
+      };
+    }
+    return newMessages;
+  });
+};
+
+// 处理工具调用
+const handleToolCall = (
+  chunk: any,
+  currentIndex: number,
+  handlers: StreamHandlers
+): number => {
+  const { updateMessage, setLoading } = handlers;
+  
+  updateMessage((prev) => {
+    const newMessages = [...prev];
+    const currentMsg = newMessages[currentIndex];
+    
+    // 如果当前消息是空的或临时状态，替换它；否则插入新消息
+    if (!currentMsg?.content || currentMsg.content === '正在思考...') {
+      // 替换当前消息为工具调用
+      newMessages[currentIndex] = {
+        role: 'assistant',
+        content: chunk.content || `正在使用工具: ${chunk.toolName}`,
+        messageType: 'tool_call',
+        toolName: chunk.toolName,
+      };
+      // 添加新的空助手消息用于后续响应
+      newMessages.splice(currentIndex + 1, 0, {
+        role: 'assistant',
+        content: '',
+      });
+    } else {
+      // 在当前消息之前插入工具调用消息
+      newMessages.splice(currentIndex, 0, {
+        role: 'assistant',
+        content: chunk.content || `正在使用工具: ${chunk.toolName}`,
+        messageType: 'tool_call',
+        toolName: chunk.toolName,
+      });
+    }
+    return newMessages;
+  });
+  
+  setLoading(false);
+  return currentIndex + 1;
+};
+
+// 处理部分内容更新
+const handlePartialContent = (
+  chunk: any,
+  messageIndex: number,
+  handlers: StreamHandlers
+) => {
+  updateMessageContent(handlers.updateMessage, messageIndex, {
+    content: chunk.content || '',
+  });
+  handlers.setLoading(false);
+};
+
+// 处理完整内容
+const handleCompleteContent = (
+  chunk: any,
+  messageIndex: number,
+  handlers: StreamHandlers
+) => {
+  updateMessageContent(handlers.updateMessage, messageIndex, {
+    content: chunk.content || '',
+  });
+  handlers.setLoading(false);
+};
+
+// 处理导航
+const handleNavigation = (
+  chunk: any,
+  messageIndex: number,
+  handlers: StreamHandlers
+) => {
+  if (chunk.url) {
+    console.log('Navigating to:', chunk.url);
+    handlers.navigate(chunk.url);
+
+    updateMessageContent(handlers.updateMessage, messageIndex, {
+      content: chunk.message || '正在跳转...',
+      url: chunk.url,
+    });
+  }
+};
+
+// 处理思考状态
+const handleThinking = (
+  chunk: any,
+  messageIndex: number,
+  handlers: StreamHandlers
+) => {
+  updateMessageContent(handlers.updateMessage, messageIndex, {
+    content: chunk.content || '',
+  });
+  handlers.setLoading(false);
+};
+
+// 处理错误
+const handleError = (
+  chunk: any,
+  messageIndex: number,
+  handlers: StreamHandlers
+) => {
+  updateMessageContent(handlers.updateMessage, messageIndex, {
+    content: chunk.content || '抱歉，我遇到了一些问题。请稍后再试。',
+  });
+};
+
+// 处理不同类型的流式响应 - 主调度函数
+const handleStreamChunk = (
+  chunk: ReturnType<typeof parseStreamChunk>,
+  assistantMessageIndex: number,
+  handlers: StreamHandlers
+): number => {
+  if (!chunk) return assistantMessageIndex;
+
+  switch (chunk.type) {
+    case 'tool_call':
+      return handleToolCall(chunk, assistantMessageIndex, handlers);
+    case 'partial':
+      handlePartialContent(chunk, assistantMessageIndex, handlers);
+      return assistantMessageIndex;
+    case 'complete':
+      handleCompleteContent(chunk, assistantMessageIndex, handlers);
+      return assistantMessageIndex;
+    case 'navigation':
+      handleNavigation(chunk, assistantMessageIndex, handlers);
+      return assistantMessageIndex;
+    case 'thinking':
+      handleThinking(chunk, assistantMessageIndex, handlers);
+      return assistantMessageIndex;
+    case 'error':
+      handleError(chunk, assistantMessageIndex, handlers);
+      return assistantMessageIndex;
+    default:
+      return assistantMessageIndex;
+  }
+};
+
 export function useChatStream() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -12,6 +177,13 @@ export function useChatStream() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // 创建处理器对象
+  const handlers: StreamHandlers = {
+    updateMessage: setMessages,
+    setLoading: setIsLoading,
+    navigate: (url: string) => router.push(url),
+  };
 
   const sendMessage = async (content: string) => {
     const userMessage: ChatMessage = {
@@ -59,113 +231,7 @@ export function useChatStream() {
 
             try {
               const chunk = parseStreamChunk(data);
-              if (!chunk) continue;
-
-              if (chunk.type === 'tool_call') {
-                // 为工具调用创建新消息
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  const currentMsg = newMessages[assistantMessageIndex];
-                  // 如果当前消息是空的或临时状态，替换它；否则插入新消息
-                  if (!currentMsg?.content || currentMsg.content === '正在思考...') {
-                    // 替换当前消息为工具调用
-                    newMessages[assistantMessageIndex] = {
-                      role: 'assistant',
-                      content: chunk.content || `正在使用工具: ${chunk.toolName}`,
-                      messageType: 'tool_call',
-                      toolName: chunk.toolName,
-                    };
-                    // 添加新的空助手消息用于后续响应
-                    newMessages.splice(assistantMessageIndex + 1, 0, {
-                      role: 'assistant',
-                      content: '',
-                    });
-                  } else {
-                    // 在当前消息之前插入工具调用消息
-                    newMessages.splice(assistantMessageIndex, 0, {
-                      role: 'assistant',
-                      content: chunk.content || `正在使用工具: ${chunk.toolName}`,
-                      messageType: 'tool_call',
-                      toolName: chunk.toolName,
-                    });
-                  }
-                  return newMessages;
-                });
-                // 更新助手消息索引到响应消息位置
-                assistantMessageIndex++;
-                // 有内容返回后关闭加载状态
-                setIsLoading(false);
-              } else if (chunk.type === 'partial') {
-                // 更新助手消息内容
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  if (newMessages[assistantMessageIndex]) {
-                    newMessages[assistantMessageIndex] = {
-                      ...newMessages[assistantMessageIndex],
-                      content: chunk.content || '',
-                    };
-                  }
-                  return newMessages;
-                });
-                // 有内容返回后关闭加载状态
-                setIsLoading(false);
-              } else if (chunk.type === 'complete') {
-                // 最终内容
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  if (newMessages[assistantMessageIndex]) {
-                    newMessages[assistantMessageIndex] = {
-                      ...newMessages[assistantMessageIndex],
-                      content: chunk.content || '',
-                    };
-                  }
-                  return newMessages;
-                });
-                // 有内容返回后关闭加载状态
-                setIsLoading(false);
-              } else if (chunk.type === 'navigation' && chunk.url) {
-                // 处理导航
-                console.log('Navigating to:', chunk.url);
-                router.push(chunk.url);
-
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  if (newMessages[assistantMessageIndex]) {
-                    newMessages[assistantMessageIndex] = {
-                      ...newMessages[assistantMessageIndex],
-                      content: chunk.message || '正在跳转...',
-                      url: chunk.url,
-                    };
-                  }
-                  return newMessages;
-                });
-              } else if (chunk.type === 'thinking') {
-                // 显示思考状态
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  if (newMessages[assistantMessageIndex]) {
-                    newMessages[assistantMessageIndex] = {
-                      ...newMessages[assistantMessageIndex],
-                      content: chunk.content || '正在思考...',
-                    };
-                  }
-                  return newMessages;
-                });
-                // 有内容返回后关闭加载状态
-                setIsLoading(false);
-              } else if (chunk.type === 'error') {
-                // 错误处理
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  if (newMessages[assistantMessageIndex]) {
-                    newMessages[assistantMessageIndex] = {
-                      ...newMessages[assistantMessageIndex],
-                      content: chunk.content || '抱歉，我遇到了一些问题。请稍后再试。',
-                    };
-                  }
-                  return newMessages;
-                });
-              }
+              assistantMessageIndex = handleStreamChunk(chunk, assistantMessageIndex, handlers);
             } catch (parseError) {
               console.error('Error parsing streaming data:', parseError);
             }
