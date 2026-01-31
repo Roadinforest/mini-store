@@ -17,8 +17,9 @@ export default function ShopAgentChat({ isOpen, onClose }: ShopAgentChatProps) {
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
-    await sendMessage(input);
+    const message = input;
     setInput('');
+    await sendMessage(message);
   };
 
   const handleNewChat = () => {
