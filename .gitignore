@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+
+# rag data
+lib/rag/outputs/**
+lib/rag/data/**
+test*/**

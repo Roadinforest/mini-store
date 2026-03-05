@@ -11,6 +11,13 @@ import { CartItem, PaymentResult } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { PAGE_SIZE } from '../constants';
 import { Prisma } from '@prisma/client';
+import {
+  bindReservationToOrder,
+  consumeOrderReservation,
+  releaseOrderReservation,
+  releaseReservedStock,
+  reserveOrderStock,
+} from '@/lib/redis/order-stock';
 
 // Create order and create the order items
 export async function createOrder() {
@@ -59,37 +66,61 @@ export async function createOrder() {
       totalPrice: cart.totalPrice,
     });
 
+    const cartItems = cart.items as CartItem[];
+    const reservationToken = crypto.randomUUID();
+    const reservationResult = await reserveOrderStock(cartItems, reservationToken);
+    const useRedisReservation = reservationResult.success;
+
+    if (!useRedisReservation && reservationResult.reason === 'OUT_OF_STOCK') {
+      return {
+        success: false,
+        message: 'Not enough stock',
+      };
+    }
+
     // Create a transaction to create order and order items in database
     // Doc: https://www.prisma.io/docs/orm/prisma-client/queries/transactions
-    const insertedOrderId = await prisma.$transaction(async (tx) => {
-      // Create order
-      const insertedOrder = await tx.order.create({ data: order });
+    let insertedOrderId = '';
+    try {
+      insertedOrderId = await prisma.$transaction(async (tx) => {
+        // Create order
+        const insertedOrder = await tx.order.create({ data: order });
 
-      // Create order items from the cart items
-      for (const item of cart.items as CartItem[]) {
-        await tx.orderItem.create({
+        // Create order items from the cart items
+        for (const item of cartItems) {
+          await tx.orderItem.create({
+            data: {
+              ...item,
+              price: item.price,
+              orderId: insertedOrder.id,
+            },
+          });
+        }
+
+        // Clear cart
+        await tx.cart.update({
+          where: { id: cart.id },
           data: {
-            ...item,
-            price: item.price,
-            orderId: insertedOrder.id,
+            items: [],
+            totalPrice: 0,
+            taxPrice: 0,
+            shippingPrice: 0,
+            itemsPrice: 0,
           },
         });
-      }
 
-      // Clear cart
-      await tx.cart.update({
-        where: { id: cart.id },
-        data: {
-          items: [],
-          totalPrice: 0,
-          taxPrice: 0,
-          shippingPrice: 0,
-          itemsPrice: 0,
-        },
+        return insertedOrder.id;
       });
+    } catch (error) {
+      if (useRedisReservation) {
+        await releaseReservedStock(cartItems, reservationToken);
+      }
+      throw error;
+    }
 
-      return insertedOrder.id;
-    });
+    if (useRedisReservation) {
+      await bindReservationToOrder(insertedOrderId, reservationToken);
+    }
 
     if (!insertedOrderId) throw new Error('Order not created');
 
@@ -170,28 +201,52 @@ export async function updateOrderToPaid({
 
   if (!order) throw new Error('Order not found');
 
-  if (order.isPaid) throw new Error('Order is already paid');
+  if (order.isPaid) {
+    await consumeOrderReservation(orderId);
+    throw new Error('Order is already paid');
+  }
+
+  const orderStockItems = order.orderitems.map((item) => ({
+    productId: item.productId,
+    qty: item.qty,
+  }));
 
   // Transaction to update order and account for product stock
-  await prisma.$transaction(async (tx) => {
-    // Iterate over products and update stock
-    for (const item of order.orderitems) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { increment: -item.qty } },
-      });
-    }
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Iterate over products and update stock
+      for (const item of order.orderitems) {
+        const updated = await tx.product.updateMany({
+          where: {
+            id: item.productId,
+            stock: {
+              gte: item.qty,
+            },
+          },
+          data: { stock: { decrement: item.qty } },
+        });
 
-    // Set the order to paid
-    await tx.order.update({
-      where: { id: orderId },
-      data: {
-        isPaid: true,
-        paidAt: new Date(),
-        paymentResult,
-      },
+        if (updated.count === 0) {
+          throw new Error(`Not enough stock for product ${item.productId}`);
+        }
+      }
+
+      // Set the order to paid
+      await tx.order.update({
+        where: { id: orderId },
+        data: {
+          isPaid: true,
+          paidAt: new Date(),
+          paymentResult,
+        },
+      });
     });
-  });
+
+    await consumeOrderReservation(orderId);
+  } catch (error) {
+    await releaseOrderReservation(orderId, orderStockItems);
+    throw error;
+  }
 
   // Get updated order after transaction
   const updatedOrder = await prisma.order.findFirst({

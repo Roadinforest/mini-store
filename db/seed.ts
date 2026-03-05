@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import sampleData from './sample-data';
 import { hash } from '@/lib/encrypt';
 
@@ -10,8 +11,11 @@ async function main() {
   await prisma.verificationToken.deleteMany();
   await prisma.user.deleteMany();
 
-  await prisma.product.createMany({ data: sampleData.products });
-  await prisma.user.createMany({ data: sampleData.users});
+  const productsWithIds: Prisma.ProductCreateManyInput[] = sampleData.products.map((product) => ({
+    ...product,
+    id: randomUUID(),
+  }));
+  await prisma.product.createMany({ data: productsWithIds });
 
   const users = [];
   for (let i = 0; i < sampleData.users.length; i++) {
