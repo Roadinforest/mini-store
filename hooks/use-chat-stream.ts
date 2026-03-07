@@ -69,7 +69,6 @@ const handleToolCall = (
     return newMessages;
   });
   
-  setLoading(false);
   return currentIndex + 1;
 };
 
@@ -82,7 +81,6 @@ const handlePartialContent = (
   updateMessageContent(handlers.updateMessage, messageIndex, {
     content: chunk.content || '',
   });
-  handlers.setLoading(false);
 };
 
 // 处理完整内容
@@ -94,7 +92,6 @@ const handleCompleteContent = (
   updateMessageContent(handlers.updateMessage, messageIndex, {
     content: chunk.content || '',
   });
-  handlers.setLoading(false);
 };
 
 // 处理导航
@@ -123,7 +120,6 @@ const handleThinking = (
   updateMessageContent(handlers.updateMessage, messageIndex, {
     content: chunk.content || '',
   });
-  handlers.setLoading(false);
 };
 
 // 处理错误
