@@ -5,6 +5,9 @@ import ViewAllProductsButton from "@/components/view-all-products-button";
 import IconBoxes from "@/components/icon-boxes";
 import DealCountdown from "@/components/deal-countdown";
 
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
 const HomePage = async () => {
   const latesProducts = await getLatestProducts();
   const featuredProducts = await getFeaturedProducts();

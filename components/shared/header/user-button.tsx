@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { auth } from "@/auth";
+import { useSession } from "next-auth/react";
 import { signOutUser } from "@/lib/actions/user.actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +13,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserIcon } from "lucide-react";
 
-const UserButton = async () => {
-  const session = await auth();
+const UserButton = () => {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <Button variant="ghost" disabled>
+        <UserIcon /> Account
+      </Button>
+    );
+  }
 
   if (!session) {
     return (
